@@ -93,9 +93,9 @@ public:
 
 	inline int entindex()
 	{
-		void* m_Network = *reinterpret_cast<void**>(uintptr_t(this) + 30);
+		void* m_Network = *reinterpret_cast<void**>(uintptr_t(this) + 48);
 		if (m_Network)
-			return *reinterpret_cast<int*>(uintptr_t(m_Network) + 6);
+			return *reinterpret_cast<short*>(uintptr_t(m_Network) + 6);
 		return 0;
 	}
 

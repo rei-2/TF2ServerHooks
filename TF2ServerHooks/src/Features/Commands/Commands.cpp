@@ -64,6 +64,25 @@ void CCommands::Initialize()
 			SDK::Output(std::format("Value of {} is {}", cvarName, foundCVar->GetString()).c_str());
 		});
 
+	Register("platfloattime", [](const std::deque<std::string>& args)
+		{
+			if (args.size() != 1)
+			{
+				SDK::Output("Usage:\n\tplatfloattime <double>");
+				return;
+			}
+
+			try
+			{
+				G::PlatFloatTimeAdd = std::stod(args[0]);
+				SDK::Output(std::format("Set G::PlatFloatTimeAdd to {}", G::PlatFloatTimeAdd).c_str());
+			}
+			catch (...) 
+			{
+				SDK::Output("Failed to set G::PlatFloatTimeAdd");
+			}
+		});
+
 	Register("unload", [](const std::deque<std::string>& args)
 		{
 			U::Core.bUnload = true;

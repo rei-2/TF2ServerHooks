@@ -27,7 +27,7 @@ static std::deque<Frame> StackTrace(PCONTEXT context)
 
 	if (!SymInitialize(hProcess, nullptr, TRUE))
 		return {};
-	
+
 	SymSetOptions(SYMOPT_LOAD_LINES);
 
 	STACKFRAME64 frame = {};
@@ -137,14 +137,14 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 		}
 		ssErrorStream << "\n";
 	}
-
+	
 	ssErrorStream << "Ctrl + C to copy. Logged to crash_log.txt. \n";
 	ssErrorStream << "Built @ " __DATE__ ", " __TIME__;
 	if (bException)
 		ssErrorStream << "\nShift + Enter to skip repetitive exceptions. ";
 	bException = true;
 
-	MessageBox(nullptr, ssErrorStream.str().c_str(), "Unhandled exception", MB_OK | MB_ICONERROR);
+	SDK::Output("Unhandled exception", ssErrorStream.str().c_str(), {}, false, true, MB_OK | MB_ICONERROR);
 
 	ssErrorStream << "\n\n\n\n";
 	std::ofstream file;
@@ -155,7 +155,12 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
-void CrashLog::Setup()
+static PVOID pHandle;
+void CrashLog::Initialize()
 {
-	AddVectoredExceptionHandler(1, ExceptionFilter);
+	pHandle = AddVectoredExceptionHandler(1, ExceptionFilter);
+}
+void CrashLog::Unload()
+{
+	RemoveVectoredExceptionHandler(pHandle);
 }

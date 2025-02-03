@@ -78,6 +78,7 @@ public:
 	NETVAR_OFF(m_surfaceFriction, float, "CBasePlayer", "m_szLastPlaceName", 32);
 	NETVAR_OFF(m_chTextureType, char, "CBasePlayer", "m_szLastPlaceName", 36);
 	NETVAR_OFF(m_hMyWearables, CUtlVector<CHandle<CEconWearable>>, "CBasePlayer", "m_szLastPlaceName", 56);
+	NETVAR_OFF(m_fLerpTime, float, "CBasePlayer", "m_hUseEntity", -40);
 
 	CONDGET(IsOnGround, m_fFlags(), FL_ONGROUND);
 	CONDGET(IsInWater, m_fFlags(), FL_INWATER);

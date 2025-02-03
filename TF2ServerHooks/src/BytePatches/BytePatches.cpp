@@ -57,7 +57,7 @@ void BytePatch::Unload()
 void CBytePatches::Initialize()
 {
 	m_vPatches = {
-		//BytePatch("server.dll", "75 ? 44 38 A7 ? ? ? ? 75 ? 41 3B DD", 0x0, "EB") // speedhack
+		BytePatch("server.dll", "75 ? 44 38 A7 ? ? ? ? 75 ? 41 3B DD", 0x0, "EB") // speedhack
 	};
 
 	for (auto& patch : m_vPatches)

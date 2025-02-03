@@ -16,6 +16,7 @@ public:
 	int weaponselect = 0;
 	int weaponsubtype = 0;
 	int random_seed = 0;
+	int server_random_seed = 0;
 	short mousedx = 0;
 	short mousedy = 0;
 	bool hasbeenpredicted = false;

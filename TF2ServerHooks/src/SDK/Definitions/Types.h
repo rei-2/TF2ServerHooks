@@ -1,7 +1,7 @@
 #pragma once
-#include <string>
 #include <vector>
 #include <deque>
+#include <string>
 #include <format>
 
 #pragma warning (disable : 26495)
@@ -137,6 +137,26 @@ public:
 		x = X; y = Y;
 	}
 
+	Vec2 Min(const Vec2& v) const
+	{
+		return Vec2(std::min<float>(x, v.x), std::min<float>(y, v.y));
+	}
+
+	Vec2 Max(const Vec2& v) const
+	{
+		return Vec2(std::max<float>(x, v.x), std::max<float>(y, v.y));
+	}
+
+	Vec2 Min(float v) const
+	{
+		return Vec2(std::min<float>(x, v), std::min<float>(y, v));
+	}
+
+	Vec2 Max(float v) const
+	{
+		return Vec2(std::max<float>(x, v), std::max<float>(y, v));
+	}
+
 	float Length(void) const
 	{
 		return sqrtf(x * x + y * y);
@@ -165,7 +185,7 @@ public:
 	bool IsZero(void) const
 	{
 		return fabsf(x) < 0.001f &&
-			   fabsf(y) < 0.001f;
+			fabsf(y) < 0.001f;
 	}
 };
 using Vector2D = Vec2;
@@ -316,6 +336,26 @@ public:
 		x = X; y = Y; z = Z;
 	}
 
+	Vec3 Min(const Vec3& v) const
+	{
+		return Vec3(std::min<float>(x, v.x), std::min<float>(y, v.y), std::min<float>(z, v.z));
+	}
+
+	Vec3 Max(const Vec3& v) const
+	{
+		return Vec3(std::max<float>(x, v.x), std::max<float>(y, v.y), std::max<float>(z, v.z));
+	}
+
+	Vec3 Min(float v) const
+	{
+		return Vec3(std::min<float>(x, v), std::min<float>(y, v), std::min<float>(z, v));
+	}
+
+	Vec3 Max(float v) const
+	{
+		return Vec3(std::max<float>(x, v), std::max<float>(y, v), std::max<float>(z, v));
+	}
+
 	float Length(void) const
 	{
 		return sqrtf(x * x + y * y + z * z);
@@ -382,8 +422,8 @@ public:
 	bool IsZero(void) const
 	{
 		return fabsf(x) < 0.001f &&
-			   fabsf(y) < 0.001f &&
-			   fabsf(z) < 0.001f;
+			fabsf(y) < 0.001f &&
+			fabsf(z) < 0.001f;
 	}
 
 	Vec3 Scale(float fl)

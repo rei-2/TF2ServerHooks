@@ -4,7 +4,7 @@
 
 
 
-void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool bConsole, /*bool bChat,*/ bool bDebug)
+void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool bConsole, /*bool bChat,*/ bool bDebug, int bMessageBox)
 {
 	static auto Msg = U::Memory.GetModuleExport<void(*)(const char* pMsgFormat, ...)>("tier0.dll", "Msg");
 	if (cLog)
@@ -14,7 +14,9 @@ void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool b
 		//if (bChat)
 		//	I::ClientModeShared->m_pChatElement->ChatPrintf(0, std::format("{}[{}]\x1 {}", cColor.ToHex(), cFunction, cLog).c_str());
 		if (bDebug)
-			OutputDebugStringA(std::format("[{}] {}\n", cFunction, cLog).c_str());
+			OutputDebugString(std::format("[{}] {}\n", cFunction, cLog).c_str());
+		if (bMessageBox != -1)
+			MessageBox(nullptr, cLog, cFunction, bMessageBox);
 	}
 	else
 	{
@@ -23,7 +25,9 @@ void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool b
 		//if (bChat)
 		//	I::ClientModeShared->m_pChatElement->ChatPrintf(0, std::format("{}{}\x1", cColor.ToHex(), cFunction).c_str());
 		if (bDebug)
-			OutputDebugStringA(std::format("{}\n", cFunction).c_str());
+			OutputDebugString(std::format("{}\n", cFunction).c_str());
+		if (bMessageBox != -1)
+			MessageBox(nullptr, "", cFunction, bMessageBox);
 	}
 }
 
@@ -45,7 +49,7 @@ std::string SDK::ConvertWideToUTF8(const std::wstring& source)
 
 double SDK::PlatFloatTime()
 {
-	static auto fnPlatFloatTime = reinterpret_cast<double(*)()>(GetProcAddress(GetModuleHandleA("tier0.dll"), "Plat_FloatTime"));
+	static auto fnPlatFloatTime = U::Memory.GetModuleExport<double(*)()>("tier0.dll", "Plat_FloatTime");
 	return fnPlatFloatTime();
 }
 
