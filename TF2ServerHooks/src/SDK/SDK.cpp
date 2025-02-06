@@ -2,7 +2,7 @@
 
 #include <random>
 
-
+MAKE_SIGNATURE(ClientPrint, "server.dll", "48 85 C9 0F 84 ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24", 0x0);
 
 void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool bConsole, /*bool bChat,*/ bool bDebug, int bMessageBox)
 {
@@ -29,6 +29,14 @@ void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool b
 		if (bMessageBox != -1)
 			MessageBox(nullptr, "", cFunction, bMessageBox);
 	}
+}
+
+void SDK::OutputClient(const char* cFunction, const char* cLog, CBasePlayer* pPlayer, int iMessageType)
+{
+	if (cLog)
+		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("[{}] {}", cFunction, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
+	else
+		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("{}", cFunction).c_str(), nullptr, nullptr, nullptr, nullptr);
 }
 
 std::wstring SDK::ConvertUtf8ToWide(const std::string& source)

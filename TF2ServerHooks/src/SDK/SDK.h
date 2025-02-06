@@ -24,6 +24,7 @@ template <typename T> int sign(T val)
 namespace SDK
 {
 	void Output(const char* cFunction, const char* cLog = nullptr, Color_t cColor = { 255, 255, 255, 255 }, bool bConsole = true, /*bool bChat = false,*/ bool bDebug = false, int bMessageBox = -1);
+	void OutputClient(const char* cFunction, const char* cLog = nullptr, CBasePlayer* pPlayer = nullptr, int iMessageType = HUD_PRINTCONSOLE);
 
 	std::wstring ConvertUtf8ToWide(const std::string& source);
 	std::string ConvertWideToUTF8(const std::wstring& source);
