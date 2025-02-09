@@ -10,6 +10,7 @@ namespace G
 {
 	inline bool Unload = false;
 	inline double PlatFloatTimeAdd = 0.0;
+	inline bool DebugVisuals = false;
 
 	inline int* RandomSeed()
 	{

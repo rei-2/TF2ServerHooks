@@ -35,7 +35,18 @@ MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManag
 		SDK::OutputClient("StartLagCompensation", std::format("Delta failed, set to {}", targettick).c_str(), pTarget);
 	}
 
-	return CALL_ORIGINAL(rcx, player, cmd);
+	if (!G::DebugVisuals)
+		CALL_ORIGINAL(rcx, player, cmd);
+	else
+	{
+		static auto sv_showlagcompensation = U::ConVars.FindVar("sv_showlagcompensation");
+		int iOriginal = sv_showlagcompensation->GetInt();
+		sv_showlagcompensation->SetValue(1);
+
+		CALL_ORIGINAL(rcx, player, cmd);
+
+		sv_showlagcompensation->SetValue(iOriginal);
+	}
 }
 
 /*

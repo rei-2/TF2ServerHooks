@@ -83,6 +83,12 @@ void CCommands::Initialize()
 			}
 		});
 
+	Register("debugvisuals", [](const std::deque<std::string>& args)
+		{
+			G::DebugVisuals = !G::DebugVisuals;
+			SDK::Output(std::format("Set G::DebugVisuals to {}", G::DebugVisuals).c_str());
+		});
+
 	Register("unload", [](const std::deque<std::string>& args)
 		{
 			U::Core.bUnload = true;

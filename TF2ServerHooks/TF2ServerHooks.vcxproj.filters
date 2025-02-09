@@ -108,13 +108,13 @@
     <ClCompile Include="src\Hooks\Plat_FloatTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hooks\CBasePlayer_ProcessUsercmds.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Hooks\Host_Say.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\CTFPlayer_FireBullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
