@@ -6,6 +6,7 @@ MAKE_HOOK(FX_FireBullets, S::FX_FireBullets(), void,
 	void* pWpn, int iPlayer, const Vec3& vecOrigin, const Vec3& vecAngles, int iWeapon, int iMode, int iSeed, float flSpread, float flDamage, bool bCritical)
 {
 	SDK::Output("FX_FireBullets", std::format("{}, {}", iSeed, flSpread).c_str(), { 255, 0, 0, 255 });
+	SDK::OutputClient("FX_FireBullets", std::format("{}, {}", iSeed, flSpread).c_str(), reinterpret_cast<CTFPlayer*>(I::GlobalEntityList->GetEntInfoPtrByIndex(iPlayer)->m_pEntity));
 
 	return CALL_ORIGINAL(pWpn, iPlayer, vecOrigin, vecAngles, iWeapon, iMode, iSeed, flSpread, flDamage, bCritical);
 }

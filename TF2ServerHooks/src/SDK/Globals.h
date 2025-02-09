@@ -4,6 +4,8 @@
 #include "../Utils/Signatures/Signatures.h"
 #include "../Utils/Memory/Memory.h"
 
+class CBasePlayer;
+
 MAKE_SIGNATURE(RandomSeed, "server.dll", "0F 45 05 ? ? ? ? 0F B6 C0", 0x0);
 
 namespace G
@@ -11,6 +13,9 @@ namespace G
 	inline bool Unload = false;
 	inline double PlatFloatTimeAdd = 0.0;
 	inline bool DebugVisuals = false;
+	inline bool ServerHitboxes = false;
+	inline int ServerHitboxesRate = 4;
+	inline CBasePlayer* DebugTarget = nullptr;
 
 	inline int* RandomSeed()
 	{

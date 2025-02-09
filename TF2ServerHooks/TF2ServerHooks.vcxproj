@@ -192,11 +192,13 @@
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\DllMain.cpp" />
     <ClCompile Include="src\Features\Commands\Commands.cpp" />
+    <ClCompile Include="src\Hooks\CBasePlayer_ProcessUsercmds.cpp" />
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp" />
     <ClCompile Include="src\Hooks\CTFPlayer_FireBullet.cpp" />
     <ClCompile Include="src\Hooks\FX_FireBullets.cpp" />
     <ClCompile Include="src\Hooks\Host_Say.cpp" />
     <ClCompile Include="src\Hooks\IVEngineClient_ClientCmd_Unrestricted.cpp" />
+    <ClCompile Include="src\Hooks\NDebugOverlay.cpp" />
     <ClCompile Include="src\Hooks\Plat_FloatTime.cpp" />
     <ClCompile Include="src\SDK\Definitions\Interfaces\CEntityList.cpp" />
     <ClCompile Include="src\SDK\Definitions\Main\INetMessage.cpp" />

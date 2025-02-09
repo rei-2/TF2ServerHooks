@@ -74,7 +74,7 @@ public:
 
 	int GetEntInfoIndex(const CEntInfo* pEntInfo) const;
 
-	CEntInfo m_EntPtrArray[NUM_ENT_ENTRIES];
+	CEntInfo m_EntPtrArray[NUM_ENT_ENTRIES * 2]; // don't know why the x2 is necessary but it religns the offsets of later member properties
 	CEntInfoList	m_activeList;
 	CEntInfoList	m_freeNonNetworkableList;
 };

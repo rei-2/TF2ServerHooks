@@ -89,6 +89,31 @@ void CCommands::Initialize()
 			SDK::Output(std::format("Set G::DebugVisuals to {}", G::DebugVisuals).c_str());
 		});
 
+	Register("serverhitboxes", [](const std::deque<std::string>& args)
+		{
+			G::ServerHitboxes = !G::ServerHitboxes;
+			SDK::Output(std::format("Set G::ServerHitboxes to {}", G::ServerHitboxes).c_str());
+		});
+
+	Register("serverhitboxesrate", [](const std::deque<std::string>& args)
+		{
+			if (args.size() != 1)
+			{
+				SDK::Output("Usage:\n\tserverhitboxesrate <int>");
+				return;
+			}
+
+			try
+			{
+				G::ServerHitboxesRate = std::stoi(args[0]);
+				SDK::Output(std::format("Set G::ServerHitboxesRate to {}", G::ServerHitboxesRate).c_str());
+			}
+			catch (...)
+			{
+				SDK::Output("Failed to set G::ServerHitboxesRate");
+			}
+		});
+
 	Register("unload", [](const std::deque<std::string>& args)
 		{
 			U::Core.bUnload = true;
