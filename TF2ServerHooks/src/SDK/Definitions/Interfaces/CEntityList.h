@@ -179,3 +179,8 @@ public:
 };
 
 MAKE_INTERFACE_SIGNATURE(CGlobalEntityList, GlobalEntityList, "server.dll", "48 8D 0D ? ? ? ? E8 ? ? ? ? 48 8B D8 48 85 C0 74 ? 0F 1F 40 ? 66 0F 1F 84 00", 0x0, 0);
+
+inline IHandleEntity* CBaseHandle::Get() const
+{
+	return I::GlobalEntityList->LookupEntity(*this);
+}

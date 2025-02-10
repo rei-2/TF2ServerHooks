@@ -123,6 +123,9 @@
     <ClCompile Include="src\Hooks\NDebugOverlay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MinHook\hde\hde32.h">

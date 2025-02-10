@@ -6,16 +6,24 @@ MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "44 88 44 24 ? 5
 MAKE_HOOK(CBasePlayer_ProcessUsercmds, S::CBasePlayer_ProcessUsercmds(), void,
 	void* rcx, CUserCmd* cmds, int numcmds, int totalcmds, int dropped_packets, bool paused)
 {
-	/*
-	bool bPrint = false;
+	bool bInAttack = false;
 	for (int i = totalcmds - 1; i >= 0; i--)
 	{
 		CUserCmd* pCmd = &cmds[totalcmds - 1 - i];
 		if (pCmd && pCmd->buttons & IN_ATTACK)
-			bPrint = true;
+			bInAttack = true;
 	}
-	SDK::Output("ProcessUsercmds", std::format("{}: {}", SDK::PlatFloatTime(), std::bit_cast<int32_t>(float(SDK::PlatFloatTime() * 1000.0)) & 255).c_str(), { 255, 0, 0, 255 }, bPrint);
-	*/
+	if (bInAttack)
+	{
+		//SDK::Output("ProcessUsercmds", std::format("{}: {}", SDK::PlatFloatTime(), std::bit_cast<int32_t>(float(SDK::PlatFloatTime() * 1000.0)) & 255).c_str(), { 255, 0, 0, 255 });
+
+		auto pPlayer = reinterpret_cast<CTFPlayer*>(rcx);
+
+		float flTime = TICKS_TO_TIME(pPlayer->m_nTickBase());
+		float flAttack = pPlayer->m_flNextAttack();
+		SDK::Output("ProcessUsercmds", std::format("{}, {}, {}", flTime - flAttack, TIME_TO_TICKS(flAttack - flTime), flTime < flAttack).c_str());
+		SDK::OutputClient("ProcessUsercmds", std::format("{}, {}, {}", flTime - flAttack, TIME_TO_TICKS(flAttack - flTime), flTime < flAttack).c_str(), pPlayer);
+	}
 
 	if (G::ServerHitboxes)
 	{

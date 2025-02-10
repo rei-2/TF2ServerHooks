@@ -195,6 +195,7 @@
     <ClCompile Include="src\Hooks\CBasePlayer_ProcessUsercmds.cpp" />
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp" />
     <ClCompile Include="src\Hooks\CTFPlayer_FireBullet.cpp" />
+    <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp" />
     <ClCompile Include="src\Hooks\FX_FireBullets.cpp" />
     <ClCompile Include="src\Hooks\Host_Say.cpp" />
     <ClCompile Include="src\Hooks\IVEngineClient_ClientCmd_Unrestricted.cpp" />
