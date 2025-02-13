@@ -3,8 +3,17 @@
 #include "../Types.h"
 #include "../../../Utils/Signatures/Signatures.h"
 
+#if x86
+MAKE_SIGNATURE(CCollisionPropert_SetCollisionBounds, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 56 57 8B 7D ? 8B F1 8D 56", 0x0);
+#else
 MAKE_SIGNATURE(CCollisionPropert_SetCollisionBounds, "server.dll", "48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 41 56 48 81 EC ? ? ? ? F2 0F 10 02", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(CCollisionProperty_CalcNearestPoint, "server.dll", "55 8B EC 83 EC ? 8D 45 ? 56 50 FF 75 ? 8B F1 E8 ? ? ? ? 8D 45", 0x0);
+#else
 MAKE_SIGNATURE(CCollisionProperty_CalcNearestPoint, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? 49 8B D8 48 8B F9 4C 8D 44 24", 0x0);
+#endif
 
 struct model_t;
 
@@ -38,11 +47,19 @@ class CCollisionProperty : public ICollideable
 public:
 	inline void SetCollisionBounds(const Vec3& mins, const Vec3& maxs)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CCollisionProperty*, const Vec3&, const Vec3&)>(S::CCollisionPropert_SetCollisionBounds())(this, mins, maxs);
+#else
 		S::CCollisionPropert_SetCollisionBounds.Call<void>(this, std::ref(mins), std::ref(maxs));
+#endif
 	}
 
 	inline void CalcNearestPoint(const Vec3& vecWorldPt, Vec3* pVecNearestWorldPt)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CCollisionProperty*, const Vec3&, Vec3*)>(S::CCollisionPropert_SetCollisionBounds())(this, vecWorldPt, pVecNearestWorldPt);
+#else
 		S::CCollisionProperty_CalcNearestPoint.Call<void>(this, std::ref(vecWorldPt), pVecNearestWorldPt);
+#endif
 	}
 };

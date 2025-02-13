@@ -23,4 +23,8 @@ public:
 	int nTimestampRandomizeWindow;
 };
 
+#if x86
+MAKE_INTERFACE_SIGNATURE(CGlobalVarsBase, GlobalVars, "server.dll", "8B 15 ? ? ? ? 0F 57 DB F3 0F 10 15", 0x2, 2);
+#else
 MAKE_INTERFACE_SIGNATURE(CGlobalVarsBase, GlobalVars, "server.dll", "48 8B 15 ? ? ? ? 0F 57 D2 F3 0F 10 2D", 0x0, 1);
+#endif

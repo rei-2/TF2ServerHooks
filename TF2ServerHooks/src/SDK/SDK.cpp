@@ -2,7 +2,11 @@
 
 #include <random>
 
+#if x86
+MAKE_SIGNATURE(ClientPrint, "server.dll", "55 8B EC 83 EC ? 56 8B 75 ? 85 F6 0F 84 ? ? ? ? 8D 4D", 0x0);
+#else
 MAKE_SIGNATURE(ClientPrint, "server.dll", "48 85 C9 0F 84 ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24", 0x0);
+#endif
 
 void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool bConsole, /*bool bChat,*/ bool bDebug, int bMessageBox)
 {
@@ -33,10 +37,19 @@ void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool b
 
 void SDK::OutputClient(const char* cFunction, const char* cLog, CBasePlayer* pPlayer, int iMessageType)
 {
+#if x86
+	if (cLog)
+		reinterpret_cast<void(__cdecl*)(CBasePlayer*, int, const char*, const char*, const char*, const char*, const char*)>(S::ClientPrint())
+		(pPlayer, iMessageType, std::format("[{}] {}", cFunction, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
+	else
+		reinterpret_cast<void(__cdecl*)(CBasePlayer*, int, const char*, const char*, const char*, const char*, const char*)>(S::ClientPrint())
+		(pPlayer, iMessageType, std::format("{}", cFunction).c_str(), nullptr, nullptr, nullptr, nullptr);
+#else
 	if (cLog)
 		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("[{}] {}", cFunction, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
 	else
 		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("{}", cFunction).c_str(), nullptr, nullptr, nullptr, nullptr);
+#endif
 }
 
 std::wstring SDK::ConvertUtf8ToWide(const std::string& source)

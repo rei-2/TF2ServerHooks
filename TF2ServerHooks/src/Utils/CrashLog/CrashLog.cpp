@@ -30,16 +30,27 @@ static std::deque<Frame> StackTrace(PCONTEXT context)
 
 	SymSetOptions(SYMOPT_LOAD_LINES);
 
+#if x86
+	STACKFRAME frame = {};
+	frame.AddrPC.Offset = context->Eip;
+	frame.AddrFrame.Offset = context->Ebp;
+	frame.AddrStack.Offset = context->Esp;
+#else
 	STACKFRAME64 frame = {};
 	frame.AddrPC.Offset = context->Rip;
 	frame.AddrFrame.Offset = context->Rbp;
 	frame.AddrStack.Offset = context->Rsp;
+#endif
 	frame.AddrPC.Mode = AddrModeFlat;
 	frame.AddrFrame.Mode = AddrModeFlat;
 	frame.AddrStack.Mode = AddrModeFlat;
 
 	std::deque<Frame> vTrace = {};
+#if x86
+	while (StackWalk(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &frame, context, nullptr, SymFunctionTableAccess, SymGetModuleBase, nullptr))
+#else
 	while (StackWalk64(IMAGE_FILE_MACHINE_AMD64, hProcess, hThread, &frame, context, nullptr, SymFunctionTableAccess64, SymGetModuleBase64, nullptr))
+#endif
 	{
 		Frame tFrame = {};
 
@@ -50,7 +61,7 @@ static std::deque<Frame> StackTrace(PCONTEXT context)
 			tFrame.m_pBase = uintptr_t(hBase);
 
 			char buf[MAX_PATH];
-			if (GetModuleFileNameA(hBase, buf, MAX_PATH))
+			if (GetModuleFileName(hBase, buf, MAX_PATH))
 			{
 				tFrame.m_sModule = std::format("{}", buf);
 				auto find = tFrame.m_sModule.rfind("\\");
@@ -63,9 +74,15 @@ static std::deque<Frame> StackTrace(PCONTEXT context)
 
 		{
 			DWORD dwOffset = 0;
+#if x86
+			IMAGEHLP_LINE line = {};
+			line.SizeOfStruct = sizeof(IMAGEHLP_LINE);
+			if (SymGetLineFromAddr(hProcess, frame.AddrPC.Offset, &dwOffset, &line))
+#else
 			IMAGEHLP_LINE64 line = {};
 			line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 			if (SymGetLineFromAddr64(hProcess, frame.AddrPC.Offset, &dwOffset, &line))
+#endif
 			{
 				tFrame.m_sFile = line.FileName;
 				tFrame.m_uLine = line.LineNumber;
@@ -76,12 +93,21 @@ static std::deque<Frame> StackTrace(PCONTEXT context)
 		}
 
 		{
-			uintptr_t dwOffset = 0;
+#if x86
+			DWORD dwOffset = 0;
+			char buf[sizeof(IMAGEHLP_SYMBOL) + 255];
+			auto symbol = PIMAGEHLP_SYMBOL(buf);
+			symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL) + 255;
+			symbol->MaxNameLength = 254;
+			if (SymGetSymFromAddr(hProcess, frame.AddrPC.Offset, &dwOffset, symbol))
+#else
+			DWORD64 dwOffset = 0;
 			char buf[sizeof(IMAGEHLP_SYMBOL64) + 255];
 			auto symbol = PIMAGEHLP_SYMBOL64(buf);
 			symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64) + 255;
 			symbol->MaxNameLength = 254;
 			if (SymGetSymFromAddr64(hProcess, frame.AddrPC.Offset, &dwOffset, symbol))
+#endif
 				tFrame.m_sName = symbol->Name;
 		}
 
@@ -110,6 +136,17 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 	std::stringstream ssErrorStream;
 	ssErrorStream << std::format("Error: {:#X}\n", ExceptionInfo->ExceptionRecord->ExceptionCode);
 	ssErrorStream << std::format("Address: {:#X}\n\n", uintptr_t(ExceptionInfo->ExceptionRecord->ExceptionAddress));
+#if x86
+	ssErrorStream << std::format("RIP: {:#x}\n", ExceptionInfo->ContextRecord->Eip);
+	ssErrorStream << std::format("RAX: {:#x}\n", ExceptionInfo->ContextRecord->Eax);
+	ssErrorStream << std::format("RCX: {:#x}\n", ExceptionInfo->ContextRecord->Ecx);
+	ssErrorStream << std::format("RDX: {:#x}\n", ExceptionInfo->ContextRecord->Edx);
+	ssErrorStream << std::format("RBX: {:#x}\n", ExceptionInfo->ContextRecord->Ebx);
+	ssErrorStream << std::format("RSP: {:#x}\n", ExceptionInfo->ContextRecord->Esp);
+	ssErrorStream << std::format("RBP: {:#x}\n", ExceptionInfo->ContextRecord->Ebp);
+	ssErrorStream << std::format("RSI: {:#x}\n", ExceptionInfo->ContextRecord->Esi);
+	ssErrorStream << std::format("RDI: {:#x}\n\n", ExceptionInfo->ContextRecord->Edi);
+#else
 	ssErrorStream << std::format("RIP: {:#x}\n", ExceptionInfo->ContextRecord->Rip);
 	ssErrorStream << std::format("RAX: {:#x}\n", ExceptionInfo->ContextRecord->Rax);
 	ssErrorStream << std::format("RCX: {:#x}\n", ExceptionInfo->ContextRecord->Rcx);
@@ -119,6 +156,7 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 	ssErrorStream << std::format("RBP: {:#x}\n", ExceptionInfo->ContextRecord->Rbp);
 	ssErrorStream << std::format("RSI: {:#x}\n", ExceptionInfo->ContextRecord->Rsi);
 	ssErrorStream << std::format("RDI: {:#x}\n\n", ExceptionInfo->ContextRecord->Rdi);
+#endif
 
 	auto vTrace = StackTrace(ExceptionInfo->ContextRecord);
 	if (!vTrace.empty())

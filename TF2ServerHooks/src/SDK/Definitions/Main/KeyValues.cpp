@@ -4,9 +4,23 @@
 
 #define Q_ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
 
+#if x86
+MAKE_SIGNATURE(KeyValues_LoadFromBuffer, "engine.dll", "55 8B EC 83 EC ? 53 8B 5D ? 89 4D ? 85 DB", 0x0);
+#else
 MAKE_SIGNATURE(KeyValues_LoadFromBuffer, "engine.dll", "4C 89 4C 24 ? 48 89 4C 24 ? 55 56", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(KeyValues_Initialize, "engine.dll", "55 8B EC 56 8B F1 6A ? FF 75 ? C7 06 ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? FF 15 ? ? ? ? 83 C4 ? 89 06 8B C6", 0x0);
+#else
 MAKE_SIGNATURE(KeyValues_Initialize, "engine.dll", "40 53 48 83 EC ? 48 8B D9 C7 01", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(KeyValues_FindKey, "server.dll", "55 8B EC 81 EC ? ? ? ? 56 8B 75 ? 57 8B F9 85 F6 0F 84 ? ? ? ? 80 3E", 0x0);
+#else
 MAKE_SIGNATURE(KeyValues_FindKey, "server.dll", "48 8B C4 53 57 41 56", 0x0);
+#endif
 
 int UnicodeToUTF8(const wchar_t* unicode, char* ansi, int ansiBufferSize)
 {
@@ -25,12 +39,20 @@ int UTF8ToUnicode(const char* ansi, wchar_t* unicode, int unicodeBufferSizeInByt
 
 bool KeyValues::LoadFromBuffer(char const* resource_name, const char* buffer, void* file_system, const char* path_id)
 {
+#if x86
+	return reinterpret_cast<bool(__fastcall*)(KeyValues*, char const*, const char*, void*, const char*)>(S::KeyValues_LoadFromBuffer())(this, resource_name, buffer, file_system, path_id);
+#else
 	return S::KeyValues_LoadFromBuffer.Call<bool>(this, resource_name, buffer, file_system, path_id);
+#endif
 }
 
 void KeyValues::Initialize(char* name)
 {
-	S::KeyValues_Initialize.Call<KeyValues*>(this, name);
+#if x86
+	reinterpret_cast<void(__fastcall*)(KeyValues*, char*)>(S::KeyValues_Initialize())(this, name);
+#else
+	S::KeyValues_Initialize.Call<void>(this, name);
+#endif
 }
 
 KeyValues::KeyValues(const char* name)
@@ -42,7 +64,11 @@ KeyValues::KeyValues(const char* name)
 
 KeyValues *KeyValues::FindKey(const char *keyName, bool bCreate)
 {
+#if x86
+	return reinterpret_cast<KeyValues*(__fastcall*)(KeyValues*, const char*, bool)>(S::KeyValues_FindKey())(this, keyName, bCreate);
+#else
 	return S::KeyValues_FindKey.Call<KeyValues*>(this, keyName, bCreate);
+#endif
 }
 
 

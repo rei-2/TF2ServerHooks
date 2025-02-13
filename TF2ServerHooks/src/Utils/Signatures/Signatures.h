@@ -28,11 +28,13 @@ public:
 		return reinterpret_cast<T>(m_dwVal);
 	}
 
-	template <typename T, typename... Args> 
+#if x64
+	template <typename T, typename... Args>
 	inline T Call(Args... args) const
 	{
 		return reinterpret_cast<T(__fastcall*)(Args...)>(m_dwVal)(args...);
 	}
+#endif
 };
 
 #define MAKE_SIGNATURE(name, dll, sig, offset) namespace S { inline CSignature name(dll, sig, offset, #name); }

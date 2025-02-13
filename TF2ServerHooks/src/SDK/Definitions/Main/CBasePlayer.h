@@ -4,7 +4,11 @@
 #include "CUserCmd.h"
 #include "../../../Utils/Signatures/Signatures.h"
 
+#if x86
+MAKE_SIGNATURE(CBasePlayer_GetAmmoCount, "server.dll", "55 8B EC 56 8B 75 ? 57 8B F9 83 FE ? 75 ? 5F", 0x0);
+#else
 MAKE_SIGNATURE(CBasePlayer_GetAmmoCount, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? 48 63 DA 48 8B F9 83 FB", 0x0);
+#endif
 
 class CBasePlayer : public CBaseCombatCharacter
 {
@@ -122,6 +126,10 @@ public:
 
 	inline int GetAmmoCount(int iAmmoType)
 	{
+#if x86
+		return reinterpret_cast<int(__fastcall*)(CBasePlayer*, int)>(S::CBasePlayer_GetAmmoCount())(this, iAmmoType);
+#else
 		return S::CBasePlayer_GetAmmoCount.Call<int>(this, iAmmoType);
+#endif
 	}
 };

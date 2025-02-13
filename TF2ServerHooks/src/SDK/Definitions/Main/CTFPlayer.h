@@ -4,7 +4,11 @@
 #include "CTFWeaponBase.h"
 #include "../../../Utils/Signatures/Signatures.h"
 
+#if x86
+MAKE_SIGNATURE(TeamFortress_CalculateMaxSpeed, "server.dll", "55 8B EC 83 EC ? 56 8B F1 8B 0D ? ? ? ? 57 85 C9", 0x0);
+#else
 MAKE_SIGNATURE(TeamFortress_CalculateMaxSpeed, "server.dll", "88 54 24 ? 53", 0x0);
+#endif
 
 class CTFPlayer : public CBasePlayer
 {
@@ -421,7 +425,11 @@ public:
 
 	inline float TeamFortress_CalculateMaxSpeed(bool bIgnoreSpecialAbility = false)
 	{
+#if x86
+		return reinterpret_cast<float(__fastcall*)(CTFPlayer*, bool)>(S::TeamFortress_CalculateMaxSpeed())(this, bIgnoreSpecialAbility);
+#else
 		return S::TeamFortress_CalculateMaxSpeed.Call<float>(this, bIgnoreSpecialAbility);
+#endif
 	}
 
 	inline float GetCritMult()

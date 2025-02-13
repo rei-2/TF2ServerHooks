@@ -32,4 +32,8 @@ protected:
 	virtual ~IMoveHelper() {}
 };
 
+#if x86
+MAKE_INTERFACE_SIGNATURE(IMoveHelper, MoveHelper, "server.dll", "8B 0D ? ? ? ? 8B 01 FF 50 ? 56", 0x2, 1);
+#else
 MAKE_INTERFACE_SIGNATURE(IMoveHelper, MoveHelper, "server.dll", "48 8B 0D ? ? ? ? 48 8B 01 FF 50 ? 0F B7 D7", 0x0, 0);
+#endif

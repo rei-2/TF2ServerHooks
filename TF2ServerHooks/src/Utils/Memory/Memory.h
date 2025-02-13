@@ -21,7 +21,11 @@ public:
 
 	inline uintptr_t RelToAbs(const uintptr_t address)
 	{
-		return *reinterpret_cast<std::int32_t*>(address + 0x3) + address + 0x7;
+#if x86
+		return *reinterpret_cast<std::uint32_t*>(address + 0x1) + address + 0x5;
+#else
+		return *reinterpret_cast<std::uint32_t*>(address + 0x3) + address + 0x7;
+#endif
 	}
 
 	template <typename T>

@@ -2,7 +2,11 @@
 #include "CEconEntity.h"
 #include "../../../Utils/Signatures/Signatures.h"
 
+#if x86
+MAKE_SIGNATURE(CBaseCombatWeapon_HasAmmo, "server.dll", "56 8B F1 83 BE ? ? ? ? ? 75 ? 83 BE ? ? ? ? ? 74", 0x0);
+#else
 MAKE_SIGNATURE(CBaseCombatWeapon_HasAmmo, "server.dll", "40 53 48 83 EC ? 83 B9 ? ? ? ? ? 48 8B D9 75 ? 83 B9 ? ? ? ? ? 74", 0x0);
+#endif
 
 class CBaseCombatWeapon : public CEconEntity
 {
@@ -28,6 +32,10 @@ public:
 
 	inline bool HasAmmo()
 	{
+#if x86
+		return reinterpret_cast<bool(__fastcall*)(CBaseCombatWeapon*)>(S::CBaseCombatWeapon_HasAmmo())(this);
+#else
 		return S::CBaseCombatWeapon_HasAmmo.Call<bool>(this);
+#endif
 	}
 };

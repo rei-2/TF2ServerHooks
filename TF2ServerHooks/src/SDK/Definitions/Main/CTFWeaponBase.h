@@ -3,10 +3,29 @@
 #include "CBasePlayer.h"
 #include "CBaseProjectile.h"
 
+#if x86
+MAKE_SIGNATURE(CTFWeaponBase_GetSpreadAngles, "server.dll", "55 8B EC 83 EC ? 56 57 6A ? 68 ? ? ? ? 68 ? ? ? ? 6A ? 8B F9 E8 ? ? ? ? 50 E8 ? ? ? ? 8B F0 83 C4 ? 85 F6 74", 0x0);
+#else
 MAKE_SIGNATURE(CTFWeaponBase_GetSpreadAngles, "server.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 0F 29 74 24 ? 48 8B DA 48 8B F9 E8 ? ? ? ? 48 8B C8", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(CTFWeaponBaseMelee_CalcIsAttackCriticalHelper, "server.dll", "55 8B EC A1 ? ? ? ? 83 EC ? 83 78 ? ? 56 8B F1 75 ? 8B 06", 0x0);
+#else
 MAKE_SIGNATURE(CTFWeaponBaseMelee_CalcIsAttackCriticalHelper, "server.dll", "40 53 48 83 EC ? 48 8B 05 ? ? ? ? 48 8B D9 83 78 ? ? 75 ? 48 8B 01 48 83 C4", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(CTFWeaponBase_CalcIsAttackCriticalHelper, "server.dll", "55 8B EC 83 EC ? 56 57 6A ? 68 ? ? ? ? 68 ? ? ? ? 6A ? 8B F1 E8 ? ? ? ? 50 E8 ? ? ? ? 8B F8", 0x0);
+#else
 MAKE_SIGNATURE(CTFWeaponBase_CalcIsAttackCriticalHelper, "server.dll", "48 89 5C 24 ? 55 56 57 41 56 41 57 48 81 EC ? ? ? ? 0F 29 74 24", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(CTFWeaponBaseGun_GetWeaponSpread, "server.dll", "55 8B EC 83 EC ? 56 8B F1 57 6A ? 6A", 0x0);
+#else
 MAKE_SIGNATURE(CTFWeaponBaseGun_GetWeaponSpread, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? 4C 63 91", 0x0);
+#endif
 
 //credits: KGB (all weapon info stuff below)
 typedef unsigned short WEAPON_FILE_INFO_HANDLE;
@@ -346,7 +365,11 @@ public:
 
 	inline void GetSpreadAngles(Vec3& out)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CTFWeaponBase*, Vec3&)>(S::CTFWeaponBase_GetSpreadAngles())(this, out);
+#else
 		S::CTFWeaponBase_GetSpreadAngles.Call<void>(this, std::ref(out));
+#endif
 	}
 
 	inline Vec3 GetSpreadAngles()
@@ -363,17 +386,29 @@ public:
 
 	inline bool CalcIsAttackCriticalHelperMelee()
 	{
+#if x86
+		return reinterpret_cast<bool(__fastcall*)(CTFWeaponBase*)>(S::CTFWeaponBaseMelee_CalcIsAttackCriticalHelper())(this);
+#else
 		return S::CTFWeaponBaseMelee_CalcIsAttackCriticalHelper.Call<bool>(this);
+#endif
 	}
 
 	inline bool CalcIsAttackCriticalHelper()
 	{
+#if x86
+		return reinterpret_cast<bool(__fastcall*)(CTFWeaponBase*)>(S::CTFWeaponBase_CalcIsAttackCriticalHelper())(this);
+#else
 		return S::CTFWeaponBase_CalcIsAttackCriticalHelper.Call<bool>(this);
+#endif
 	}
 
 	inline float GetWeaponSpread()
 	{
+#if x86
+		return reinterpret_cast<float(__fastcall*)(CTFWeaponBase*)>(S::CTFWeaponBaseGun_GetWeaponSpread())(this);
+#else
 		return S::CTFWeaponBaseGun_GetWeaponSpread.Call<float>(this);
+#endif
 	}
 };
 

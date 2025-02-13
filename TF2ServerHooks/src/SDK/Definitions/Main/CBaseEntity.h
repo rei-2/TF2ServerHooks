@@ -9,9 +9,23 @@
 #include "../../../Utils/Signatures/Signatures.h"
 #include "../../../Utils/Memory/Memory.h"
 
+#if x86
+MAKE_SIGNATURE(CBaseEntity_SetAbsOrigin, "server.dll", "55 8B EC 83 EC ? 56 8B 75 ? 57 8B F9 E8", 0x0);
+#else
 MAKE_SIGNATURE(CBaseEntity_SetAbsOrigin, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 E8 ? ? ? ? F3 0F 10 83", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(CBaseEntity_SetAbsAngles, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 56 8B F1 E8", 0x0);
+#else
 MAKE_SIGNATURE(CBaseEntity_SetAbsAngles, "server.dll", "48 89 5C 24 ? 56 48 81 EC ? ? ? ? 48 8B F2", 0x0);
+#endif
+
+#if x86
+MAKE_SIGNATURE(CBaseEntity_SetAbsVelocity, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 57 8B F9 F3 0F 10 03", 0x0);
+#else
 MAKE_SIGNATURE(CBaseEntity_SetAbsVelocity, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? F3 0F 10 81 ? ? ? ? 48 8B DA", 0x0);
+#endif
 
 enum CollideType_t
 {
@@ -93,7 +107,11 @@ public:
 
 	inline int entindex()
 	{
+#if x86
+		void* m_Network = *reinterpret_cast<void**>(uintptr_t(this) + 24);
+#else
 		void* m_Network = *reinterpret_cast<void**>(uintptr_t(this) + 48);
+#endif
 		if (m_Network)
 			return *reinterpret_cast<short*>(uintptr_t(m_Network) + 6);
 		return 0;
@@ -158,16 +176,28 @@ public:
 
 	inline void SetAbsOrigin(const Vec3& absOrigin)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CBaseEntity*, const Vec3&)>(S::CBaseEntity_SetAbsOrigin())(this, absOrigin);
+#else
 		S::CBaseEntity_SetAbsOrigin.Call<void>(this, std::ref(absOrigin));
+#endif
 	}
 
 	inline void SetAbsAngles(const Vec3& absAngles)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CBaseEntity*, const Vec3&)>(S::CBaseEntity_SetAbsAngles())(this, absAngles);
+#else
 		S::CBaseEntity_SetAbsAngles.Call<void>(this, std::ref(absAngles));
+#endif
 	}
 
 	inline void SetAbsVelocity(const Vec3& vecAbsVelocity)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CBaseEntity*, const Vec3&)>(S::CBaseEntity_SetAbsVelocity())(this, vecAbsVelocity);
+#else
 		S::CBaseEntity_SetAbsVelocity.Call<void>(this, std::ref(vecAbsVelocity));
+#endif
 	}
 };

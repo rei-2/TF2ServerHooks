@@ -99,16 +99,13 @@
     <ClCompile Include="src\Features\Commands\Commands.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hooks\IVEngineClient_ClientCmd_Unrestricted.cpp">
+    <ClCompile Include="src\Hooks\Cmd_ExecuteCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SDK\Definitions\Interfaces\CEntityList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Hooks\Plat_FloatTime.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Hooks\Host_Say.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp">
@@ -124,6 +121,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\DataTable_Warning.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

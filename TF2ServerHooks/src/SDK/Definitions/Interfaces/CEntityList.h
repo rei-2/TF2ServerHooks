@@ -178,7 +178,11 @@ public:
 	CUtlVector<IEntityListener*>	m_entityListeners;
 };
 
+#if x86
+MAKE_INTERFACE_SIGNATURE(CGlobalEntityList, GlobalEntityList, "server.dll", "B9 ? ? ? ? E8 ? ? ? ? 8B F0 85 F6 74 ? EB ? 8D 49", 0x1, 1);
+#else
 MAKE_INTERFACE_SIGNATURE(CGlobalEntityList, GlobalEntityList, "server.dll", "48 8D 0D ? ? ? ? E8 ? ? ? ? 48 8B D8 48 85 C0 74 ? 0F 1F 40 ? 66 0F 1F 84 00", 0x0, 0);
+#endif
 
 inline IHandleEntity* CBaseHandle::Get() const
 {

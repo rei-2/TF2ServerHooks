@@ -5,6 +5,7 @@
 #include <TlHelp32.h>
 #include <string>
 #include <format>
+#include "../../SDK/SDK.h"
 
 #pragma warning (disable: 4172)
 
@@ -25,7 +26,11 @@ const char* SearchForDLL(const char* pszDLLSearch)
 
 	do
 	{
-		if (pe32.szExeFile == strstr(pe32.szExeFile, "tf_win64.exe"))
+#if x86
+		if (pe32.szExeFile == strstr(pe32.szExeFile, "srcds.exe"))
+#else
+		if (pe32.szExeFile == strstr(pe32.szExeFile, "srcds_win64.exe"))
+#endif
 		{
 			HANDLE hModuleSnap = INVALID_HANDLE_VALUE;
 			MODULEENTRY32 me32;
@@ -85,21 +90,26 @@ void CInterfaces::Initialize()
 			*Interface->m_pPtr = U::Memory.FindInterface(Interface->m_pszDLLName, Interface->m_pszVersion);
 		else
 		{
-			auto dwDest = U::Memory.FindSignature(Interface->m_pszDLLName, Interface->m_pszVersion);
-			if (!dwDest)
+			SDK::Output("Interface->m_pszDLLName", Interface->m_pszVersion, {}, true, true);
+			auto dwAddress = U::Memory.FindSignature(Interface->m_pszDLLName, Interface->m_pszVersion);
+			if (!dwAddress)
 			{
-				AssertCustom(dwDest, std::format("CInterfaces::Initialize() failed to find signature:\n  {}\n  {}", Interface->m_pszDLLName, Interface->m_pszVersion).c_str());
+				AssertCustom(dwAddress, std::format("CInterfaces::Initialize() failed to find signature:\n  {}\n  {}", Interface->m_pszDLLName, Interface->m_pszVersion).c_str());
 				continue;
 			}
 
-			auto dwAddress = U::Memory.RelToAbs(dwDest);
+#if x64
+			dwAddress = U::Memory.RelToAbs(dwAddress);
+#endif
 			*Interface->m_pPtr = reinterpret_cast<void*>(dwAddress + Interface->m_nOffset);
 
 			for (int n = 0; n < Interface->m_nDereferenceCount; n++)
 			{
+				SDK::Output("*Interface->m_pPtr", std::format("{}, {:#x}, {:#x}", n, uintptr_t(*Interface->m_pPtr), uintptr_t(Interface->m_pPtr)).c_str(), {}, true, true);
 				if (Interface->m_pPtr)
 					*Interface->m_pPtr = *reinterpret_cast<void**>(*Interface->m_pPtr);
 			}
+			SDK::Output("*Interface->m_pPtr", std::format("{:#x}", uintptr_t(*Interface->m_pPtr)).c_str(), {}, true, true);
 		}
 
 		AssertCustom(*Interface->m_pPtr, std::format("CInterfaces::Initialize() failed to initialize:\n  {}\n  {}", Interface->m_pszDLLName, Interface->m_pszVersion).c_str());

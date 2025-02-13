@@ -3,7 +3,11 @@
 #include "../Misc/Studio.h"
 #include "../../../Utils/Math/Math.h"
 
+#if x86
+MAKE_SIGNATURE(CBaseAnimating_GetBonePosition, "server.dll", "55 8B EC 83 EC ? 56 8B F1 80 BE ? ? ? ? ? 75 ? 83 BE ? ? ? ? ? 75 ? E8 ? ? ? ? 85 C0 74 ? 8B CE E8 ? ? ? ? 8B 86", 0x0);
+#else
 MAKE_SIGNATURE(CBaseAnimating_GetBonePosition, "server.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 80 B9 ? ? ? ? ? 49 8B F1", 0x0);
+#endif
 
 class CBaseAnimating : public CBaseEntity
 {
@@ -142,7 +146,11 @@ public:
 
 	inline void GetBonePosition(int iBone, Vector& origin, QAngle& angles)
 	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CBaseAnimating*, int, Vector&, Vector&)>(S::CBaseAnimating_GetBonePosition())(this, iBone, origin, angles);
+#else
 		S::CBaseAnimating_GetBonePosition.Call<void>(this, iBone, std::ref(origin), std::ref(angles));
+#endif
 	}
 
 	inline bool GetAttachment(int number, Vec3& origin)

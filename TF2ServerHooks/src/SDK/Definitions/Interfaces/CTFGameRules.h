@@ -4,7 +4,11 @@
 #include "../../../Utils/NetVars/NetVars.h"
 #include "../../../Utils/Memory/Memory.h"
 
+#if x86
+MAKE_SIGNATURE(CTFGameRules_Get, "server.dll", "8B 0D ? ? ? ? FF 76 ? FF 75", 0x0);
+#else
 MAKE_SIGNATURE(CTFGameRules_Get, "server.dll", "48 8B 0D ? ? ? ? 49 8B D6 44 8B 4F", 0x0);
+#endif
 
 class CTeamplayRules
 {
