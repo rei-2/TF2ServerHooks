@@ -5,7 +5,6 @@
 #include <TlHelp32.h>
 #include <string>
 #include <format>
-#include "../../SDK/SDK.h"
 
 #pragma warning (disable: 4172)
 
@@ -90,7 +89,6 @@ void CInterfaces::Initialize()
 			*Interface->m_pPtr = U::Memory.FindInterface(Interface->m_pszDLLName, Interface->m_pszVersion);
 		else
 		{
-			SDK::Output("Interface->m_pszDLLName", Interface->m_pszVersion, {}, true, true);
 			auto dwAddress = U::Memory.FindSignature(Interface->m_pszDLLName, Interface->m_pszVersion);
 			if (!dwAddress)
 			{
@@ -105,11 +103,9 @@ void CInterfaces::Initialize()
 
 			for (int n = 0; n < Interface->m_nDereferenceCount; n++)
 			{
-				SDK::Output("*Interface->m_pPtr", std::format("{}, {:#x}, {:#x}", n, uintptr_t(*Interface->m_pPtr), uintptr_t(Interface->m_pPtr)).c_str(), {}, true, true);
 				if (Interface->m_pPtr)
 					*Interface->m_pPtr = *reinterpret_cast<void**>(*Interface->m_pPtr);
 			}
-			SDK::Output("*Interface->m_pPtr", std::format("{:#x}", uintptr_t(*Interface->m_pPtr)).c_str(), {}, true, true);
 		}
 
 		AssertCustom(*Interface->m_pPtr, std::format("CInterfaces::Initialize() failed to initialize:\n  {}\n  {}", Interface->m_pszDLLName, Interface->m_pszVersion).c_str());
