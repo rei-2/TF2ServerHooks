@@ -9,6 +9,12 @@ MAKE_SIGNATURE(CBaseAnimating_GetBonePosition, "server.dll", "55 8B EC 83 EC ? 5
 MAKE_SIGNATURE(CBaseAnimating_GetBonePosition, "server.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 80 B9 ? ? ? ? ? 49 8B F1", 0x0);
 #endif
 
+#if x86
+MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "55 8B EC 83 EC ? 57 8B F9 80 BF ? ? ? ? ? 0F 85 ? ? ? ? 83 BF ? ? ? ? ? 75 ? E8 ? ? ? ? 85 C0 74 ? 8B CF E8 ? ? ? ? 8B 97", 0x0);
+#else
+MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "44 88 44 24 ? 53 48 81 EC", 0x0);
+#endif
+
 class CBaseAnimating : public CBaseEntity
 {
 public:
@@ -34,7 +40,7 @@ public:
 	NETVAR(m_fadeMaxDist, float, "CBaseAnimating", "m_fadeMaxDist");
 	NETVAR(m_flFadeScale, float, "CBaseAnimating", "m_flFadeScale");
 
-	NETVAR_OFF(GetModelPtr, CStudioHdr*, "CBaseAnimating", "m_nMuzzleFlashParity", 12);
+	NETVAR_OFF(GetModelPtr, CStudioHdr*, "CBaseAnimating", "m_flFadeScale", 36);
 
 	inline void SetupBones(matrix3x4* pBoneToWorld, int boneMask)
 	{
@@ -150,6 +156,15 @@ public:
 		reinterpret_cast<void(__fastcall*)(CBaseAnimating*, int, Vector&, Vector&)>(S::CBaseAnimating_GetBonePosition())(this, iBone, origin, angles);
 #else
 		S::CBaseAnimating_GetBonePosition.Call<void>(this, iBone, std::ref(origin), std::ref(angles));
+#endif
+	}
+
+	inline void DrawServerHitboxes(float duration = 0.f, bool monocolor = false)
+	{
+#if x86
+		reinterpret_cast<void(__fastcall*)(CBaseAnimating*, float, bool)>(S::CBaseAnimating_DrawServerHitboxes())(this, duration, monocolor);
+#else
+		S::CBaseAnimating_DrawServerHitboxes.Call<void>(this, duration, monocolor);
 #endif
 	}
 

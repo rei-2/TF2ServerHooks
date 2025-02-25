@@ -192,9 +192,11 @@
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\DllMain.cpp" />
     <ClCompile Include="src\Features\Commands\Commands.cpp" />
+    <ClCompile Include="src\Hooks\CBaseAnimating_DrawServerHitboxes.cpp" />
     <ClCompile Include="src\Hooks\CBasePlayer_ProcessUsercmds.cpp" />
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp" />
     <ClCompile Include="src\Hooks\CTFPlayer_FireBullet.cpp" />
+    <ClCompile Include="src\Hooks\CTFProjectile_Arrow_ArrowTouch.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp" />
     <ClCompile Include="src\Hooks\DataTable_Warning.cpp" />
     <ClCompile Include="src\Hooks\FX_FireBullets.cpp" />

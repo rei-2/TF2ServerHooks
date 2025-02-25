@@ -7,15 +7,9 @@ MAKE_SIGNATURE(CBasePlayer_ProcessUsercmds, "server.dll", "40 53 55 56 57 41 54 
 #endif
 
 #if x86
-MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "55 8B EC 83 EC ? 57 8B F9 80 BF ? ? ? ? ? 0F 85 ? ? ? ? 83 BF ? ? ? ? ? 75 ? E8 ? ? ? ? 85 C0 74 ? 8B CF E8 ? ? ? ? 8B 97", 0x0);
-#else
-MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "44 88 44 24 ? 53 48 81 EC", 0x0);
-#endif
-
-#if x86
 MAKE_SIGNATURE(CTFWeaponBase_IncrementAmmo, "server.dll", "55 8B EC 83 EC ? 56 57 6A ? 68 ? ? ? ? 68 ? ? ? ? 6A ? 8B F1 E8 ? ? ? ? 50 E8 ? ? ? ? 83 C4", 0x0);
 #else
-MAKE_SIGNATURE(CTFWeaponBase_IncrementAmmo, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 E8 ? ? ? ? 48 8B C8 C7 44 24 ? ? ? ? ? 4C 8D 0D ? ? ? ? 33 D2 4C 8D 05 ? ? ? ? E8 ? ? ? ? 80 BB", 0x0);
+MAKE_SIGNATURE(CTFWeaponBase_IncrementAmmo, "server.dll", "40 53 57 48 83 EC ? 48 8B D9 E8 ? ? ? ? 48 8B C8", 0x0);
 #endif
 
 
@@ -62,10 +56,8 @@ MAKE_HOOK(CBasePlayer_ProcessUsercmds, S::CBasePlayer_ProcessUsercmds(), void,
 				auto pPlayer = pEntity->As<CTFPlayer>();
 				if (!pEntity->IsPlayer() || pEntity->entindex() == G::DebugTarget->entindex())
 					continue;
-#if x86
-				//reinterpret_cast<void(__fastcall*)(CBaseAnimating*, float, bool)>(S::CBaseAnimating_DrawServerHitboxes())(pPlayer, TICK_INTERVAL * G::ServerHitboxesRate, true);
-#else
-				S::CBaseAnimating_DrawServerHitboxes.Call<void>(pPlayer, TICK_INTERVAL * G::ServerHitboxesRate, true);
+#if !x86
+				pPlayer->DrawServerHitboxes(TICK_INTERVAL * G::ServerHitboxesRate, true);
 #endif
 			}
 		}

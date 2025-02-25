@@ -16,6 +16,9 @@ namespace G
 	inline bool ServerHitboxes = false;
 	inline int ServerHitboxesRate = 4;
 	inline CBasePlayer* DebugTarget = nullptr;
+	inline bool NoBoxAngles = false;
+	inline bool DrawBoundingBox = false;
+	inline bool DrawHeadOnly = false;
 
 	inline int* RandomSeed()
 	{

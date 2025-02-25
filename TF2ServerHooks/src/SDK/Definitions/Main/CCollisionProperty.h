@@ -4,9 +4,9 @@
 #include "../../../Utils/Signatures/Signatures.h"
 
 #if x86
-MAKE_SIGNATURE(CCollisionPropert_SetCollisionBounds, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 56 57 8B 7D ? 8B F1 8D 56", 0x0);
+MAKE_SIGNATURE(CCollisionProperty_SetCollisionBounds, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 56 8B F1 F3 0F 10 4E", 0x0);
 #else
-MAKE_SIGNATURE(CCollisionPropert_SetCollisionBounds, "server.dll", "48 8B C4 48 89 58 ? 48 89 70 ? 48 89 78 ? 41 56 48 81 EC ? ? ? ? F2 0F 10 02", 0x0);
+MAKE_SIGNATURE(CCollisionProperty_SetCollisionBounds, "server.dll", "48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? F3 0F 10 0A", 0x0);
 #endif
 
 #if x86
@@ -48,16 +48,16 @@ public:
 	inline void SetCollisionBounds(const Vec3& mins, const Vec3& maxs)
 	{
 #if x86
-		reinterpret_cast<void(__fastcall*)(CCollisionProperty*, const Vec3&, const Vec3&)>(S::CCollisionPropert_SetCollisionBounds())(this, mins, maxs);
+		reinterpret_cast<void(__fastcall*)(CCollisionProperty*, const Vec3&, const Vec3&)>(S::CCollisionProperty_SetCollisionBounds())(this, mins, maxs);
 #else
-		S::CCollisionPropert_SetCollisionBounds.Call<void>(this, std::ref(mins), std::ref(maxs));
+		S::CCollisionProperty_SetCollisionBounds.Call<void>(this, std::ref(mins), std::ref(maxs));
 #endif
 	}
 
 	inline void CalcNearestPoint(const Vec3& vecWorldPt, Vec3* pVecNearestWorldPt)
 	{
 #if x86
-		reinterpret_cast<void(__fastcall*)(CCollisionProperty*, const Vec3&, Vec3*)>(S::CCollisionPropert_SetCollisionBounds())(this, vecWorldPt, pVecNearestWorldPt);
+		reinterpret_cast<void(__fastcall*)(CCollisionProperty*, const Vec3&, Vec3*)>(S::CCollisionProperty_CalcNearestPoint())(this, vecWorldPt, pVecNearestWorldPt);
 #else
 		S::CCollisionProperty_CalcNearestPoint.Call<void>(this, std::ref(vecWorldPt), pVecNearestWorldPt);
 #endif

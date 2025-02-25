@@ -10,7 +10,7 @@
 #include "../../../Utils/Memory/Memory.h"
 
 #if x86
-MAKE_SIGNATURE(CBaseEntity_SetAbsOrigin, "server.dll", "55 8B EC 83 EC ? 56 8B 75 ? 57 8B F9 E8", 0x0);
+MAKE_SIGNATURE(CBaseEntity_SetAbsOrigin, "server.dll", "55 8B EC 83 EC ? 56 57 8B 7D ? 8B F1 E8", 0x0);
 #else
 MAKE_SIGNATURE(CBaseEntity_SetAbsOrigin, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? 48 8B FA 48 8B D9 E8 ? ? ? ? F3 0F 10 83", 0x0);
 #endif
@@ -18,13 +18,13 @@ MAKE_SIGNATURE(CBaseEntity_SetAbsOrigin, "server.dll", "48 89 5C 24 ? 57 48 83 E
 #if x86
 MAKE_SIGNATURE(CBaseEntity_SetAbsAngles, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 56 8B F1 E8", 0x0);
 #else
-MAKE_SIGNATURE(CBaseEntity_SetAbsAngles, "server.dll", "48 89 5C 24 ? 56 48 81 EC ? ? ? ? 48 8B F2", 0x0);
+MAKE_SIGNATURE(CBaseEntity_SetAbsAngles, "server.dll", "40 53 56 48 81 EC ? ? ? ? 48 8B F2", 0x0);
 #endif
 
 #if x86
-MAKE_SIGNATURE(CBaseEntity_SetAbsVelocity, "server.dll", "55 8B EC 83 EC ? 53 8B 5D ? 57 8B F9 F3 0F 10 03", 0x0);
+MAKE_SIGNATURE(CBaseEntity_SetAbsVelocity, "server.dll", "55 8B EC 83 EC ? 53 56 8B 75 ? 8B D9 F3 0F 10 06", 0x0);
 #else
-MAKE_SIGNATURE(CBaseEntity_SetAbsVelocity, "server.dll", "48 89 5C 24 ? 57 48 83 EC ? F3 0F 10 81 ? ? ? ? 48 8B DA", 0x0);
+MAKE_SIGNATURE(CBaseEntity_SetAbsVelocity, "server.dll", "48 89 74 24 ? 57 48 83 EC ? F3 0F 10 81 ? ? ? ? 48 8B F2 0F 2E 02", 0x0);
 #endif
 
 enum CollideType_t

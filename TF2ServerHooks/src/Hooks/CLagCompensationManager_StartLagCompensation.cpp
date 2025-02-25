@@ -7,12 +7,6 @@ MAKE_SIGNATURE(CLagCompensationManager_StartLagCompensation, "server.dll", "40 5
 #endif
 
 #if x86
-MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "55 8B EC 83 EC ? 57 8B F9 80 BF ? ? ? ? ? 0F 85 ? ? ? ? 83 BF ? ? ? ? ? 75 ? E8 ? ? ? ? 85 C0 74 ? 8B CF E8 ? ? ? ? 8B 97", 0x0);
-#else
-MAKE_SIGNATURE(CBaseAnimating_DrawServerHitboxes, "server.dll", "44 88 44 24 ? 53 48 81 EC", 0x0);
-#endif
-
-#if x86
 MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManager_StartLagCompensation(), void, __fastcall,
 	void* ecx, void* edx, CBasePlayer* player, CUserCmd* cmd)
 #else
