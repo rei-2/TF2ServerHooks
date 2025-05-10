@@ -22,16 +22,18 @@ MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManag
 	int targettick = cmd->tick_count - lerpTicks;
 
 	float correct = 0.f;
-	if (INetChannelInfo* nci = I::EngineServer->GetPlayerNetInfo(player->entindex()))
-		correct += nci->GetLatency(FLOW_OUTGOING);
+	INetChannelInfo* nci = I::EngineServer->GetPlayerNetInfo(player->entindex());
+	float flOutgoing = nci ? nci->GetLatency(FLOW_OUTGOING) : 0.f;
+	float flIncoming = nci ? nci->GetLatency(FLOW_INCOMING) : 0.f;
+	correct += flOutgoing;
 
 	correct += TICKS_TO_TIME(lerpTicks);
 	correct = std::clamp(correct, 0.f, sv_maxunlag->GetFloat());
 
 	float deltaTime = correct - TICKS_TO_TIME(I::GlobalVars->tickcount - targettick);
 
-	SDK::Output("StartLagCompensation", std::format("{}, {}, {}, {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick).c_str());
-	SDK::OutputClient("StartLagCompensation", std::format("{}, {}, {}, {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick).c_str(), player);
+	SDK::Output("StartLagCompensation", std::format("{}, {}; {}, {}, {}; {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick, flOutgoing, flIncoming).c_str());
+	SDK::OutputClient("StartLagCompensation", std::format("{}, {}; {}, {}, {}; {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick, flOutgoing, flIncoming).c_str(), player);
 
 	if (fabs(deltaTime) > 0.2f)
 	{

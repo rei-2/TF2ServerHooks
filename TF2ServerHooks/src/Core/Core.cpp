@@ -11,17 +11,12 @@ void CCore::Load()
 	//	Sleep(500);
 	//Sleep(500);
 
-		SDK::Output("Core", "U::Signatures.Initialize();", {}, false, true);
 	U::Signatures.Initialize();
-		SDK::Output("Core", "U::Interfaces.Initialize();", {}, false, true);
 	U::Interfaces.Initialize();
-		SDK::Output("Core", "F::Commands.Initialize();", {}, false, true);
 	F::Commands.Initialize();
-		SDK::Output("Core", "U::Hooks.Initialize();", {}, false, true);
 	U::Hooks.Initialize();
-		SDK::Output("Core", "U::BytePatches.Initialize();", {}, false, true);
 	U::BytePatches.Initialize();
-		SDK::Output("Core", "H::Events.Initialize();", {}, false, true);
+	U::ConVars.Initialize();
 	H::Events.Initialize();
 
 	SDK::Output("TF2ServerHooks", "Loaded", { 175, 150, 255, 255 }, true, true);
@@ -42,11 +37,9 @@ void CCore::Unload()
 	}
 
 	G::Unload = true;
-		SDK::Output("Core", "U::Hooks.Unload();", {}, false, true);
 	U::Hooks.Unload();
-		SDK::Output("Core", "U::BytePatches.Unload();", {}, false, true);
 	U::BytePatches.Unload();
-		SDK::Output("Core", "H::Events.Unload();", {}, false, true);
+	U::ConVars.Unload();
 	H::Events.Unload();
 
 	Sleep(250);

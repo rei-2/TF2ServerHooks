@@ -114,6 +114,12 @@ void CCommands::Initialize()
 			}
 		});
 
+	Register("tickinfo", [](const std::deque<std::string>& args)
+		{
+			G::TickInfo = !G::TickInfo;
+			SDK::Output(std::format("Set G::TickInfo to {}", G::TickInfo).c_str());
+		});
+
 	Register("unload", [](const std::deque<std::string>& args)
 		{
 			U::Core.bUnload = true;

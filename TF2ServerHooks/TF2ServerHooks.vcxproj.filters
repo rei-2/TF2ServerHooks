@@ -132,6 +132,9 @@
     <ClCompile Include="src\Hooks\CBaseAnimating_DrawServerHitboxes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hooks\CPlayerMove_RunCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MinHook\hde\hde32.h">

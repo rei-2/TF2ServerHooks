@@ -19,6 +19,7 @@ namespace G
 	inline bool NoBoxAngles = false;
 	inline bool DrawBoundingBox = false;
 	inline bool DrawHeadOnly = false;
+	inline bool TickInfo = false;
 
 	inline int* RandomSeed()
 	{
