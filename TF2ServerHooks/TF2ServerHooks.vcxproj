@@ -204,6 +204,7 @@
     <ClCompile Include="src\Hooks\Cmd_ExecuteCommand.cpp" />
     <ClCompile Include="src\Hooks\NDebugOverlay.cpp" />
     <ClCompile Include="src\Hooks\Plat_FloatTime.cpp" />
+    <ClCompile Include="src\Hooks\UTIL_EntitiesInSphere.cpp" />
     <ClCompile Include="src\SDK\Definitions\Interfaces\CEntityList.cpp" />
     <ClCompile Include="src\SDK\Definitions\Main\INetMessage.cpp" />
     <ClCompile Include="src\SDK\Definitions\Main\KeyValues.cpp" />
