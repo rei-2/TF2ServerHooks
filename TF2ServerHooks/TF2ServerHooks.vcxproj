@@ -199,6 +199,7 @@
     <ClCompile Include="src\Hooks\CTFPlayer_FireBullet.cpp" />
     <ClCompile Include="src\Hooks\CTFProjectile_Arrow_ArrowTouch.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp" />
+    <ClCompile Include="src\Hooks\CTFWeaponBaseMelee_DoSwingTraceInternal.cpp" />
     <ClCompile Include="src\Hooks\DataTable_Warning.cpp" />
     <ClCompile Include="src\Hooks\FX_FireBullets.cpp" />
     <ClCompile Include="src\Hooks\Cmd_ExecuteCommand.cpp" />

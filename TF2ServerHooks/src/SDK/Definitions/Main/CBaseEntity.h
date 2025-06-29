@@ -103,6 +103,11 @@ public:
 	NETVAR_OFF(m_flOldSimulationTime, float, "CBaseEntity", "m_flSimulationTime", 4);
 	NETVAR_OFF(m_Particles, CParticleProperty*, "CBaseEntity", "m_flElasticity", -56);
 
+	inline Vec3& EyePosition(Vec3& vPosition)
+	{
+		return reinterpret_cast<Vec3&(*)(void*, Vec3&)>(U::Memory.GetVFunc(this, 137))(this, vPosition);
+	};
+	VIRTUAL(EyeAngles, Vec3&, Vec3&(*)(void*), this, 138);
 	VIRTUAL(UpdateVisibility, void, void(*)(CBaseEntity*), this, 91);
 
 	inline int entindex()

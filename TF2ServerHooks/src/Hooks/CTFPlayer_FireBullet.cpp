@@ -13,19 +13,19 @@ MAKE_SIGNATURE(UTIL_PlayerBulletTrace, "server.dll", "48 89 5C 24 ? 48 89 74 24 
 #endif
 
 #if x86
-MAKE_SIGNATURE(UTIL_TraceLine, "server.dll", "", 0x0);
+MAKE_SIGNATURE(UTIL_TraceLine, "server.dll", "53 8B DC 83 EC ? 83 E4 ? 83 C4 ? 55 8B 6B ? 89 6C 24 ? 8B EC 83 EC ? 8B 43 ? 8B 4B ? 56 C6 45", 0x0);
 #else
 MAKE_SIGNATURE(UTIL_TraceLine, "server.dll", "48 8B C4 53 48 81 EC ? ? ? ? F3 0F 10 42 ? F3 0F 10 19", 0x0);
 #endif
 
 #if x86
-MAKE_SIGNATURE(UTIL_PlayerBulletTrace_TraceLine_Call, "server.dll", "", 0x0);
+MAKE_SIGNATURE(UTIL_PlayerBulletTrace_TraceLine_Call, "server.dll", "33 C0 83 C4 ? 89 45 ? 89 45", 0x0);
 #else
 MAKE_SIGNATURE(UTIL_PlayerBulletTrace_TraceLine_Call, "server.dll", "80 7B ? ? 0F 85 ? ? ? ? 48 8B CB", 0x0);
 #endif
 
 #if x86
-MAKE_SIGNATURE(UTIL_ClipTraceToPlayers, "server.dll", "", 0x0);
+MAKE_SIGNATURE(UTIL_ClipTraceToPlayers, "server.dll", "53 8B DC 83 EC ? 83 E4 ? 83 C4 ? 55 8B 6B ? 89 6C 24 ? 8B EC 81 EC ? ? ? ? 56 8B 73 ? 8D 8D", 0x0);
 #else
 MAKE_SIGNATURE(UTIL_ClipTraceToPlayers, "server.dll", "48 8B C4 48 89 70 ? 48 89 78 ? 55 41 54 41 55 41 56 41 57 48 8D 68", 0x0);
 #endif
@@ -92,9 +92,8 @@ MAKE_HOOK(UTIL_TraceLine, S::UTIL_TraceLine(), void,
 
 	CALL_ORIGINAL(vecAbsStart, vecAbsEnd, mask, pFilter, ptr);
 
-	bool bDesired = dwDesired == dwRetAddr;
-	if (G::DebugVisuals)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z + 1, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z + 1, bDesired ? 255 : 0, 0, 0, 0, 4.f).c_str(), pPlayer);
+	if (G::DebugVisuals && dwDesired == dwRetAddr)
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z + 1, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z + 1, 255, 0, 0, 0, 4.f).c_str(), pPlayer);
 }
 
 #if x86

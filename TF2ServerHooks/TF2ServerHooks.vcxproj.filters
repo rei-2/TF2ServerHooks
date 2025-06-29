@@ -138,6 +138,9 @@
     <ClCompile Include="src\Hooks\UTIL_EntitiesInSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hooks\CTFWeaponBaseMelee_DoSwingTraceInternal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MinHook\hde\hde32.h">

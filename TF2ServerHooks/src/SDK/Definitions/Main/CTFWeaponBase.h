@@ -223,18 +223,9 @@ public:
 	VIRTUAL(GetDamageType, int, int(*)(void*), this, 382);
 	VIRTUAL(IsEnergyWeapon, bool, bool(*)(void*), this, 432);
 	VIRTUAL(AreRandomCritsEnabled, bool, bool(*)(void*), this, 402);
+	VIRTUAL(GetSwingRange, bool, bool(*)(void*), this, 470);
 
 	OFFSET(m_iWeaponMode, int, 996);
-
-	inline float GetSwingRange(CBaseEntity* pLocal)
-	{
-		return reinterpret_cast<int(*)(CBaseEntity*)>(U::Memory.GetVFunc(this, 455))(pLocal);
-	}
-
-	inline float GetSwingRange()
-	{
-		return GetWeaponID() == TF_WEAPON_SWORD ? 72.f : 48.f;
-	}
 
 	inline bool CanFireCriticalShot(bool bIsHeadshot = false)
 	{
