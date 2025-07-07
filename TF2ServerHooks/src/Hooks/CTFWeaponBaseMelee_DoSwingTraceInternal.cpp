@@ -31,7 +31,7 @@ MAKE_HOOK(CTFWeaponBaseMelee_DoSwingTraceInternal, S::CTFWeaponBaseMelee_DoSwing
 		auto pWeapon = reinterpret_cast<CTFWeaponBase*>(rcx);
 #endif
 
-		if (auto pPlayer = pWeapon->m_hOwner().Get()->As<CTFPlayer>())
+		if (auto pPlayer = pWeapon->m_hOwner()->As<CTFPlayer>())
 		{
 			G::DebugTarget = pPlayer;
 

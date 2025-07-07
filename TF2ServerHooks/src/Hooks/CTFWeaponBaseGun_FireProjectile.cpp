@@ -14,16 +14,13 @@ MAKE_HOOK(CTFWeaponBaseGun_FireProjectile, S::CTFWeaponBaseGun_FireProjectile(),
 	void* rcx, CTFPlayer* pPlayer)
 #endif
 {
-#if x86
-	reinterpret_cast<CBaseEntity*>(ecx)->m_vecOrigin();
-#else
-	reinterpret_cast<CBaseEntity*>(rcx)->m_vecOrigin();
-#endif
-
-	float flTime = I::GlobalVars->curtime;
-	float flAttack = pPlayer->m_flNextAttack();
-	SDK::Output("FireProjectile", std::format("{}, {}, {}", flTime - flAttack, TIME_TO_TICKS(flAttack - flTime), flTime < flAttack).c_str());
-	SDK::OutputClient("FireProjectile", std::format("{}, {}, {}", flTime - flAttack, TIME_TO_TICKS(flAttack - flTime), flTime < flAttack).c_str(), pPlayer);
+	if (G::DebugInfo)
+	{
+		float flTime = I::GlobalVars->curtime;
+		float flAttack = pPlayer->m_flNextAttack();
+		SDK::Output("FireProjectile", std::format("{}, {}, {}", flTime - flAttack, TIME_TO_TICKS(flAttack - flTime), flTime < flAttack).c_str());
+		SDK::OutputClient("FireProjectile", std::format("{}, {}, {}", flTime - flAttack, TIME_TO_TICKS(flAttack - flTime), flTime < flAttack).c_str(), pPlayer);
+	}
 
 #if x86
 	return CALL_ORIGINAL(ecx, edx, pPlayer);

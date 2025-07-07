@@ -82,7 +82,7 @@ MAKE_HOOK(CTFWeaponBase_IncrementAmmo, S::CTFWeaponBase_IncrementAmmo(), void,
 #else
 	auto pWeapon = reinterpret_cast<CTFWeaponBase*>(rcx);
 #endif
-	auto pLocal = pWeapon->m_hOwnerEntity().Get()->As<CTFPlayer>();
+	auto pLocal = pWeapon->m_hOwnerEntity()->As<CTFPlayer>();
 	if (pLocal && pWeapon)
 	{
 		SDK::Output("IncrementAmmo", std::format("{}\n\t{}, {}\n\t{}, {}",

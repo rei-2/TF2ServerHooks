@@ -206,9 +206,9 @@ public:
 
 	NETVAR_OFF(GetWeaponInfo, CTFWeaponInfo*, "CTFWeaponBase", "m_flEffectBarRegenTime", 16);
 	NETVAR_OFF(m_flSmackTime, float, "CTFWeaponBase", "m_nInspectStage", 28);
-	NETVAR_OFF(m_flCritTokenBucket, float, "CTFWeaponBase", "m_iReloadMode", -244);
-	NETVAR_OFF(m_nCritChecks, int, "CTFWeaponBase", "m_iReloadMode", -240);
-	NETVAR_OFF(m_nCritSeedRequests, int, "CTFWeaponBase", "m_iReloadMode", -236);
+	NETVAR_OFF(m_flCritTokenBucket, float, "CTFWeaponBase", "m_iReloadMode", -332);
+	NETVAR_OFF(m_nCritChecks, int, "CTFWeaponBase", "m_iReloadMode", -328);
+	NETVAR_OFF(m_nCritSeedRequests, int, "CTFWeaponBase", "m_iReloadMode", -324);
 	NETVAR_OFF(m_flCritTime, float, "CTFWeaponBase", "m_flLastCritCheckTime", -4);
 	NETVAR_OFF(m_iCurrentSeed, int, "CTFWeaponBase", "m_flLastCritCheckTime", 8);
 	NETVAR_OFF(m_flLastRapidFireCritCheckTime, float, "CTFWeaponBase", "m_flLastCritCheckTime", 12);
@@ -229,7 +229,7 @@ public:
 
 	inline bool CanFireCriticalShot(bool bIsHeadshot = false)
 	{
-		auto pOwner = m_hOwnerEntity().Get()->As<CBasePlayer>();
+		auto pOwner = m_hOwnerEntity()->As<CBasePlayer>();
 		if (!pOwner)
 			return false;
 
@@ -242,7 +242,7 @@ public:
 
 	inline bool CanPrimaryAttack()
 	{
-		auto pOwner = m_hOwnerEntity().Get()->As<CBasePlayer>();
+		auto pOwner = m_hOwnerEntity()->As<CBasePlayer>();
 		if (!pOwner)
 			return false;
 
@@ -252,7 +252,7 @@ public:
 
 	inline bool CanSecondaryAttack()
 	{
-		auto pOwner = m_hOwnerEntity().Get()->As<CBasePlayer>();
+		auto pOwner = m_hOwnerEntity()->As<CBasePlayer>();
 		if (!pOwner)
 			return false;
 

@@ -14,32 +14,35 @@ MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManag
 	void* rcx, CBasePlayer* player, CUserCmd* cmd)
 #endif
 {
-	G::DebugTarget = player;
-
-	static auto sv_maxunlag = U::ConVars.FindVar("sv_maxunlag");
-
-	int lerpTicks = TIME_TO_TICKS(player->m_fLerpTime());
-	int targettick = cmd->tick_count - lerpTicks;
-
-	float correct = 0.f;
-	INetChannelInfo* nci = I::EngineServer->GetPlayerNetInfo(player->entindex());
-	float flOutgoing = nci ? nci->GetLatency(FLOW_OUTGOING) : 0.f;
-	float flIncoming = nci ? nci->GetLatency(FLOW_INCOMING) : 0.f;
-	correct += flOutgoing;
-
-	correct += TICKS_TO_TIME(lerpTicks);
-	correct = std::clamp(correct, 0.f, sv_maxunlag->GetFloat());
-
-	float deltaTime = correct - TICKS_TO_TIME(I::GlobalVars->tickcount - targettick);
-
-	SDK::Output("StartLagCompensation", std::format("{}, {}; {}, {}, {}; {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick, flOutgoing, flIncoming).c_str());
-	SDK::OutputClient("StartLagCompensation", std::format("{}, {}; {}, {}, {}; {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick, flOutgoing, flIncoming).c_str(), player);
-
-	if (fabs(deltaTime) > 0.2f)
+	if (G::DebugInfo)
 	{
-		targettick = I::GlobalVars->tickcount - TIME_TO_TICKS(correct);
-		SDK::Output("StartLagCompensation", std::format("Delta failed, set to {}", targettick).c_str());
-		SDK::OutputClient("StartLagCompensation", std::format("Delta failed, set to {}", targettick).c_str(), player);
+		G::DebugTarget = player;
+
+		static auto sv_maxunlag = U::ConVars.FindVar("sv_maxunlag");
+
+		int lerpTicks = TIME_TO_TICKS(player->m_fLerpTime());
+		int targettick = cmd->tick_count - lerpTicks;
+
+		float correct = 0.f;
+		INetChannelInfo* nci = I::EngineServer->GetPlayerNetInfo(player->entindex());
+		float flOutgoing = nci ? nci->GetLatency(FLOW_OUTGOING) : 0.f;
+		float flIncoming = nci ? nci->GetLatency(FLOW_INCOMING) : 0.f;
+		correct += flOutgoing;
+
+		correct += TICKS_TO_TIME(lerpTicks);
+		correct = std::clamp(correct, 0.f, sv_maxunlag->GetFloat());
+
+		float deltaTime = correct - TICKS_TO_TIME(I::GlobalVars->tickcount - targettick);
+
+		SDK::Output("StartLagCompensation", std::format("{}, {}; {}, {}, {}; {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick, flOutgoing, flIncoming).c_str());
+		SDK::OutputClient("StartLagCompensation", std::format("{}, {}; {}, {}, {}; {}, {}", correct, I::GlobalVars->tickcount, deltaTime, lerpTicks, targettick, flOutgoing, flIncoming).c_str(), player);
+
+		if (fabs(deltaTime) > 0.2f)
+		{
+			targettick = I::GlobalVars->tickcount - TIME_TO_TICKS(correct);
+			SDK::Output("StartLagCompensation", std::format("Delta failed, set to {}", targettick).c_str());
+			SDK::OutputClient("StartLagCompensation", std::format("Delta failed, set to {}", targettick).c_str(), player);
+		}
 	}
 
 	if (!G::DebugVisuals)

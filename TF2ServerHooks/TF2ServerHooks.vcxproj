@@ -200,6 +200,7 @@
     <ClCompile Include="src\Hooks\CTFProjectile_Arrow_ArrowTouch.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBaseMelee_DoSwingTraceInternal.cpp" />
+    <ClCompile Include="src\Hooks\CTFWeaponBase_CalcIsAttackCritical.cpp" />
     <ClCompile Include="src\Hooks\DataTable_Warning.cpp" />
     <ClCompile Include="src\Hooks\FX_FireBullets.cpp" />
     <ClCompile Include="src\Hooks\Cmd_ExecuteCommand.cpp" />
@@ -299,6 +300,7 @@
     <ClInclude Include="src\SDK\Definitions\Main\KeyValues.h" />
     <ClInclude Include="src\SDK\Definitions\Main\MD5.h" />
     <ClInclude Include="src\SDK\Definitions\Main\NetChannel.h" />
+    <ClInclude Include="src\SDK\Definitions\Main\PlayerStats.h" />
     <ClInclude Include="src\SDK\Definitions\Main\UtlVector.h" />
     <ClInclude Include="src\SDK\Definitions\Misc\Activity.h" />
     <ClInclude Include="src\SDK\Definitions\Misc\AnalogCode.h" />

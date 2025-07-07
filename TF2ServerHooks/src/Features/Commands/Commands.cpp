@@ -89,6 +89,24 @@ void CCommands::Initialize()
 			SDK::Output(std::format("Set G::DebugVisuals to {}", G::DebugVisuals).c_str());
 		});
 
+	Register("debuginfo", [](const std::deque<std::string>& args)
+		{
+			G::DebugInfo = !G::DebugInfo;
+			SDK::Output(std::format("Set G::DebugInfo to {}", G::DebugInfo).c_str());
+		});
+
+	Register("tickinfo", [](const std::deque<std::string>& args)
+		{
+			G::TickInfo = !G::TickInfo;
+			SDK::Output(std::format("Set G::TickInfo to {}", G::TickInfo).c_str());
+		});
+
+	Register("critinfo", [](const std::deque<std::string>& args)
+		{
+			G::CritInfo = !G::CritInfo;
+			SDK::Output(std::format("Set G::CritInfo to {}", G::CritInfo).c_str());
+		});
+
 	Register("serverhitboxes", [](const std::deque<std::string>& args)
 		{
 			G::ServerHitboxes = !G::ServerHitboxes;
@@ -112,12 +130,6 @@ void CCommands::Initialize()
 			{
 				SDK::Output("Failed to set G::ServerHitboxesRate");
 			}
-		});
-
-	Register("tickinfo", [](const std::deque<std::string>& args)
-		{
-			G::TickInfo = !G::TickInfo;
-			SDK::Output(std::format("Set G::TickInfo to {}", G::TickInfo).c_str());
 		});
 
 	Register("unload", [](const std::deque<std::string>& args)
