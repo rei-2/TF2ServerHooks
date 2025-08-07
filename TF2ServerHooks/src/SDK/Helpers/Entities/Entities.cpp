@@ -7,7 +7,9 @@ void CEntities::Store()
 {
 	for (CBaseEntity* pEntity = I::GlobalEntityList->FirstEnt(); pEntity; pEntity = I::GlobalEntityList->NextEnt(pEntity))
 	{
+		int n = pEntity->entindex();
 		auto nClassID = pEntity->GetClassID();
+
 		switch (nClassID)
 		{
 		case ETFClassID::CTFPlayerResource:
@@ -16,17 +18,19 @@ void CEntities::Store()
 		case ETFClassID::CObjectSentrygun:
 		case ETFClassID::CObjectDispenser:
 		case ETFClassID::CObjectTeleporter:
+			m_mModels[n] = FNV1A::Hash32(pEntity->GetModelName().ToCStr());
 			m_mGroups[EGroupType::BUILDINGS].push_back(pEntity);
 			break;
 		case ETFClassID::CBaseAnimating:
 		{
-			if (IsHealth(pEntity))
+			m_mModels[n] = FNV1A::Hash32(pEntity->GetModelName().ToCStr());
+			if (IsHealth(m_mModels[n]))
 				m_mGroups[EGroupType::PICKUPS_HEALTH].push_back(pEntity);
-			else if (IsAmmo(pEntity))
+			else if (IsAmmo(m_mModels[n]))
 				m_mGroups[EGroupType::PICKUPS_AMMO].push_back(pEntity);
-			else if (IsPowerup(pEntity))
+			else if (IsPowerup(m_mModels[n]))
 				m_mGroups[EGroupType::PICKUPS_POWERUP].push_back(pEntity);
-			else if (IsSpellbook(pEntity))
+			else if (IsSpellbook(m_mModels[n]))
 				m_mGroups[EGroupType::PICKUPS_SPELLBOOK].push_back(pEntity);
 			break;
 		}
@@ -106,66 +110,22 @@ void CEntities::Store()
 
 		m_mGroups[EGroupType::PLAYERS].push_back(pEntity);
 	}
-
-	int iLag;
-	{
-		static int iStaticTickcout = I::GlobalVars->tickcount;
-		iLag = I::GlobalVars->tickcount - iStaticTickcout - 1;
-		iStaticTickcout = I::GlobalVars->tickcount;
-	}
-
-	static auto sv_maxusrcmdprocessticks = U::ConVars.FindVar("sv_maxusrcmdprocessticks");
-	int iMaxShift = sv_maxusrcmdprocessticks ? sv_maxusrcmdprocessticks->GetInt() : 24;
-	/*
-	for (CBaseEntity* pEntity = I::GlobalEntityList->FirstEnt(); pEntity; pEntity = I::GlobalEntityList->NextEnt(pEntity))
-	{
-		auto pPlayer = pEntity->As<CTFPlayer>();
-		if (!pEntity->IsPlayer())
-			continue;
-
-		bool bDormant = pPlayer->IsDormant();
-
-		float flOldSimTime = m_mOldSimTimes[n] = m_mSimTimes.contains(n) ? m_mSimTimes[n] : pPlayer->m_flOldSimulationTime();
-		float flSimTime = m_mSimTimes[n] = pPlayer->m_flSimulationTime();
-		float flDeltaTime = m_mDeltaTimes[n] = TICKS_TO_TIME(std::clamp(TIME_TO_TICKS(flSimTime - flOldSimTime) - iLag, 0, iMaxShift));
-		if (flDeltaTime)
-			m_mSetTicks[n] = I::GlobalVars->tickcount;
-		m_mChokes[n] = I::GlobalVars->tickcount - m_mSetTicks[n];
-
-		if (!flDeltaTime)
-			continue;
-		else if (bDormant)
-		{
-			m_mBones[n].first = false;
-			continue;
-		}
-
-		m_bSettingUpBones = true;
-		m_mBones[n].first = pPlayer->SetupBones(m_mBones[n].second, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, flSimTime);
-		m_bSettingUpBones = false;
-	}
-	*/
 }
 
 void CEntities::Clear(bool bShutdown)
 {
 	m_pPlayerResource = nullptr;
 	m_mGroups.clear();
-	m_bSettingUpBones = false;
 
 	if (bShutdown)
 	{
-		m_mSimTimes.clear();
-		m_mOldSimTimes.clear();
-		m_mDeltaTimes.clear();
-		m_mChokes.clear();
-		m_mBones.clear();
+
 	}
 }
 
-bool CEntities::IsHealth(CBaseEntity* pEntity)
+bool CEntities::IsHealth(uint32_t uHash)
 {
-	switch (FNV1A::Hash32(pEntity->GetModelName().ToCStr()))
+	switch (uHash)
 	{
 	case FNV1A::Hash32Const("models/items/banana/plate_banana.mdl"):
 	case FNV1A::Hash32Const("models/items/medkit_small.mdl"):
@@ -191,9 +151,9 @@ bool CEntities::IsHealth(CBaseEntity* pEntity)
 	return false;
 }
 
-bool CEntities::IsAmmo(CBaseEntity* pEntity)
+bool CEntities::IsAmmo(uint32_t uHash)
 {
-	switch (FNV1A::Hash32(pEntity->GetModelName().ToCStr()))
+	switch (uHash)
 	{
 	case FNV1A::Hash32Const("models/items/ammopack_small.mdl"):
 	case FNV1A::Hash32Const("models/items/ammopack_medium.mdl"):
@@ -206,9 +166,9 @@ bool CEntities::IsAmmo(CBaseEntity* pEntity)
 	return false;
 }
 
-bool CEntities::IsPowerup(CBaseEntity* pEntity)
+bool CEntities::IsPowerup(uint32_t uHash)
 {
-	switch (FNV1A::Hash32(pEntity->GetModelName().ToCStr()))
+	switch (uHash)
 	{
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_agility.mdl"):
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_crit.mdl"):
@@ -220,21 +180,21 @@ bool CEntities::IsPowerup(CBaseEntity* pEntity)
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_precision.mdl"):
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_reflect.mdl"):
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_regen.mdl"):
-	//case FNV1A::Hash32Const("models/pickups/pickup_powerup_resistance.mdl"):
+		//case FNV1A::Hash32Const("models/pickups/pickup_powerup_resistance.mdl"):
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_strength.mdl"):
-	//case FNV1A::Hash32Const("models/pickups/pickup_powerup_strength_arm.mdl"):
+		//case FNV1A::Hash32Const("models/pickups/pickup_powerup_strength_arm.mdl"):
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_supernova.mdl"):
-	//case FNV1A::Hash32Const("models/pickups/pickup_powerup_thorns.mdl"):
-	//case FNV1A::Hash32Const("models/pickups/pickup_powerup_uber.mdl"):
+		//case FNV1A::Hash32Const("models/pickups/pickup_powerup_thorns.mdl"):
+		//case FNV1A::Hash32Const("models/pickups/pickup_powerup_uber.mdl"):
 	case FNV1A::Hash32Const("models/pickups/pickup_powerup_vampire.mdl"):
 		return true;
 	}
 	return false;
 }
 
-bool CEntities::IsSpellbook(CBaseEntity* pEntity)
+bool CEntities::IsSpellbook(uint32_t uHash)
 {
-	switch (FNV1A::Hash32(pEntity->GetModelName().ToCStr()))
+	switch (uHash)
 	{
 	case FNV1A::Hash32Const("models/props_halloween/hwn_spellbook_flying.mdl"):
 	case FNV1A::Hash32Const("models/props_halloween/hwn_spellbook_upright.mdl"):
@@ -249,13 +209,5 @@ bool CEntities::IsSpellbook(CBaseEntity* pEntity)
 }
 
 CTFPlayerResource* CEntities::GetPR() { return m_pPlayerResource; }
-
 const std::vector<CBaseEntity*>& CEntities::GetGroup(const EGroupType& Group) { return m_mGroups[Group]; }
-
-float CEntities::GetSimTime(CBaseEntity* pEntity) { int iIndex = pEntity->entindex(); return m_mSimTimes.contains(iIndex) ? m_mSimTimes[iIndex] : pEntity->m_flSimulationTime(); }
-float CEntities::GetOldSimTime(CBaseEntity* pEntity) { int iIndex = pEntity->entindex(); return m_mOldSimTimes.contains(iIndex) ? m_mOldSimTimes[iIndex] : pEntity->m_flOldSimulationTime(); }
-float CEntities::GetDeltaTime(int iIndex) { return m_mDeltaTimes.contains(iIndex) ? m_mDeltaTimes[iIndex] : TICK_INTERVAL; }
-int CEntities::GetChoke(int iIndex) { return m_mChokes.contains(iIndex) ? m_mChokes[iIndex] : 0; }
-matrix3x4* CEntities::GetBones(int iIndex) { return m_mBones[iIndex].first ? m_mBones[iIndex].second : nullptr; }
-
-bool CEntities::IsSettingUpBones() { return m_bSettingUpBones; }
+uint32_t CEntities::GetModel(int iIndex) { return m_mModels[iIndex]; }

@@ -81,9 +81,9 @@ MAKE_HOOK(CTFWeaponBase_DeflectProjectiles, S::CTFWeaponBase_DeflectProjectiles(
 #endif
 {
 #if x86
-	G::DebugTarget = reinterpret_cast<CTFPlayer*>(ecx);
+	G::DebugTarget = reinterpret_cast<CTFWeaponBase*>(ecx)->m_hOwner()->As<CBasePlayer>();
 #else
-	G::DebugTarget = reinterpret_cast<CTFPlayer*>(rcx);
+	G::DebugTarget = reinterpret_cast<CTFWeaponBase*>(rcx)->m_hOwner()->As<CBasePlayer>();
 #endif
 
 #if x86

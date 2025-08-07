@@ -13,7 +13,7 @@
 #include "../Utils/ConVars/ConVars.h"
 #include "../Utils/Hash/FNV1A.h"
 #include "../Utils/Timer/Timer.h"
-#include "../Utils/Feature/Feature.h"
+#include "../Utils/Macros/Macros.h"
 #include <intrin.h>
 
 template <typename T> int sign(T val)
@@ -21,10 +21,17 @@ template <typename T> int sign(T val)
 	return (val > T(0)) - (val < T(0));
 }
 
+#define OUTPUT_CONSOLE 1 << 0
+#define OUTPUT_DEBUG 1 << 1
+
 namespace SDK
 {
-	void Output(const char* cFunction, const char* cLog = nullptr, Color_t cColor = { 255, 255, 255, 255 }, bool bConsole = true, /*bool bChat = false,*/ bool bDebug = false, int bMessageBox = -1);
-	void OutputClient(const char* cFunction, const char* cLog = nullptr, CBasePlayer* pPlayer = nullptr, int iMessageType = HUD_PRINTCONSOLE);
+	void Output(const char* cFunction, const char* cLog = nullptr, Color_t tColor = { 255, 255, 255, 255 },
+		int iTo = OUTPUT_CONSOLE, int iMessageBox = -1,
+		const char* sLeft = "[", const char* sRight = "]");
+	void OutputClient(const char* cFunction, const char* cLog = nullptr,
+		CBasePlayer* pPlayer = nullptr, int iMessageType = HUD_PRINTCONSOLE,
+		const char* sLeft = "[", const char* sRight = "]");
 
 	std::wstring ConvertUtf8ToWide(const std::string& source);
 	std::string ConvertWideToUTF8(const std::wstring& source);

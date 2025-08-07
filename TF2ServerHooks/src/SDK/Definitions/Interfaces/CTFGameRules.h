@@ -1,14 +1,18 @@
 #pragma once
 #include "Interface.h"
 #include "../Definitions.h"
+#include "../Main/CBaseHandle.h"
 #include "../../../Utils/NetVars/NetVars.h"
 #include "../../../Utils/Memory/Memory.h"
 
 #if x86
-MAKE_SIGNATURE(CTFGameRules_Get, "server.dll", "8B 0D ? ? ? ? FF 76 ? FF 75", 0x0);
+MAKE_SIGNATURE(TFGameRules, "server.dll", "8B 0D ? ? ? ? FF 76 ? FF 75", 0x0);
 #else
-MAKE_SIGNATURE(CTFGameRules_Get, "server.dll", "48 8B 0D ? ? ? ? 49 8B D6 44 8B 4F", 0x0);
+MAKE_SIGNATURE(TFGameRules, "server.dll", "48 8B 0D ? ? ? ? 49 8B D6 44 8B 4F", 0x0);
 #endif
+
+class CBaseEntity;
+typedef CHandle<CBaseEntity> EHANDLE;
 
 class CTeamplayRules
 {
@@ -43,18 +47,6 @@ public:
 class CTFGameRules : public CTeamplayRoundBasedRules
 {
 public:
-	CTFGameRules* Get()
-	{
-		return *reinterpret_cast<CTFGameRules**>(U::Memory.RelToAbs(S::CTFGameRules_Get()));
-	}
-
-public:
-	__inline CViewVectors* GetViewVectors()
-	{
-		return reinterpret_cast<CViewVectors*(*)()>(U::Memory.GetVFunc(this, 31))();
-	}
-
-public:
 	NETVAR(m_nGameType, int, "CTFGameRulesProxy", "m_nGameType");
 	NETVAR(m_nStopWatchState, int, "CTFGameRulesProxy", "m_nStopWatchState");
 	NETVAR(m_pszTeamGoalStringRed, const char*, "CTFGameRulesProxy", "m_pszTeamGoalStringRed");
@@ -67,7 +59,7 @@ public:
 	NETVAR(m_bIsWaitingForTrainingContinue, bool, "CTFGameRulesProxy", "m_bIsWaitingForTrainingContinue");
 	NETVAR(m_bIsTrainingHUDVisible, bool, "CTFGameRulesProxy", "m_bIsTrainingHUDVisible");
 	NETVAR(m_bIsInItemTestingMode, bool, "CTFGameRulesProxy", "m_bIsInItemTestingMode");
-	NETVAR(m_hBonusLogic, int /*EHANDLE CBonusRoundLogic*/, "CTFGameRulesProxy", "m_hBonusLogic");
+	NETVAR(m_hBonusLogic, EHANDLE, "CTFGameRulesProxy", "m_hBonusLogic");
 	NETVAR(m_bPlayingKoth, bool, "CTFGameRulesProxy", "m_bPlayingKoth");
 	NETVAR(m_bPowerupMode, bool, "CTFGameRulesProxy", "m_bPowerupMode");
 	NETVAR(m_bPlayingRobotDestructionMode, bool, "CTFGameRulesProxy", "m_bPlayingRobotDestructionMode");
@@ -86,8 +78,8 @@ public:
 	NETVAR(m_bIsUsingSpells, bool, "CTFGameRulesProxy", "m_bIsUsingSpells");
 	NETVAR(m_bTruceActive, bool, "CTFGameRulesProxy", "m_bTruceActive");
 	NETVAR(m_bTeamsSwitched, bool, "CTFGameRulesProxy", "m_bTeamsSwitched");
-	NETVAR(m_hRedKothTimer, int /*EHANDLE*/, "CTFGameRulesProxy", "m_hRedKothTimer");
-	NETVAR(m_hBlueKothTimer, int /*EHANDLE*/, "CTFGameRulesProxy", "m_hBlueKothTimer");
+	NETVAR(m_hRedKothTimer, EHANDLE, "CTFGameRulesProxy", "m_hRedKothTimer");
+	NETVAR(m_hBlueKothTimer, EHANDLE, "CTFGameRulesProxy", "m_hBlueKothTimer");
 	NETVAR(m_nMapHolidayType, int, "CTFGameRulesProxy", "m_nMapHolidayType");
 	NETVAR(m_pszCustomUpgradesFile, const char*, "CTFGameRulesProxy", "m_pszCustomUpgradesFile");
 	NETVAR(m_bShowMatchSummary, bool, "CTFGameRulesProxy", "m_bShowMatchSummary");
@@ -110,6 +102,8 @@ public:
 	NETVAR(m_nForceEscortPushLogic, int, "CTFGameRulesProxy", "m_nForceEscortPushLogic");
 	NETVAR(m_bRopesHolidayLightsAllowed, bool, "CTFGameRulesProxy", "m_bRopesHolidayLightsAllowed");
 
+	VIRTUAL(GetViewVectors, CViewVectors*, CViewVectors*(*)(void*), 31, this);
+
 	inline bool IsPlayerReady(int playerIndex)
 	{
 		if (playerIndex > 101)
@@ -124,4 +118,10 @@ public:
 	}
 };
 
-MAKE_INTERFACE_NULL(CTFGameRules, TFGameRules);
+namespace I
+{
+	inline CTFGameRules* TFGameRules()
+	{
+		return *reinterpret_cast<CTFGameRules**>(U::Memory.RelToAbs(S::TFGameRules()));
+	}
+};

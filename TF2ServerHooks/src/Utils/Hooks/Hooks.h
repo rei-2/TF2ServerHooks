@@ -1,5 +1,5 @@
 #pragma once
-#include "../Feature/Feature.h"
+#include "../Macros/Macros.h"
 #include <MinHook/MinHook.h>
 #include <unordered_map>
 #include <string>
@@ -11,7 +11,7 @@ public:
 	void* m_pInitFunc = nullptr;
 
 public:
-	CHook(std::string sName, void* pInitFunc);
+	CHook(const std::string& sName, void* pInitFunc);
 
 	inline void Create(void* pSrc, void* pDst)
 	{
@@ -31,44 +31,33 @@ public:
 	}
 };
 
-#if x86
-#define MAKE_HOOK(name, address, type, convention, ...) namespace Hooks \
-{\
-	namespace name\
-	{\
-		void Init(); \
-		inline CHook Hook(#name, Init); \
-		using FN = type(convention*)(__VA_ARGS__); \
-		type convention Func(__VA_ARGS__); \
-	}\
-} \
-void Hooks::name::Init() { Hook.Create(reinterpret_cast<void*>(address), Func); } \
-type convention Hooks::name::Func(__VA_ARGS__)
-#else
-#define MAKE_HOOK(name, address, type, ...) namespace Hooks \
-{\
-	namespace name\
-	{\
+#define MAKE_HOOK(name, address, type, ...) \
+namespace Hooks \
+{ \
+	namespace name \
+	{ \
 		void Init(); \
 		inline CHook Hook(#name, Init); \
 		using FN = type(__fastcall*)(__VA_ARGS__); \
 		type __fastcall Func(__VA_ARGS__); \
-	}\
+	} \
 } \
 void Hooks::name::Init() { Hook.Create(reinterpret_cast<void*>(address), Func); } \
 type __fastcall Hooks::name::Func(__VA_ARGS__)
-#endif
+
+#define CALL_ORIGINAL Hook.As<FN>()
 
 class CHooks
 {
+private:
+	bool m_bFailed = false;
+
 public:
 	std::unordered_map<std::string, CHook*> m_mHooks = {};
 
 public:
-	void Initialize();
-	void Unload();
+	bool Initialize();
+	bool Unload();
 };
 
 ADD_FEATURE_CUSTOM(CHooks, Hooks, U);
-
-#define CALL_ORIGINAL Hook.As<FN>()

@@ -1,8 +1,9 @@
 #pragma once
-#include "../Feature/Feature.h"
+#include "../Macros/Macros.h"
 #include <Windows.h>
 #include <cstdint>
 #include <vector>
+#include <string>
 
 class CMemory
 {
@@ -11,21 +12,32 @@ public:
 	std::vector<int> PatternToInt(const char* szPattern);
 	uintptr_t FindSignature(const char* szModule, const char* szPattern);
 	PVOID FindInterface(const char* szModule, const char* szObject);
+	std::string GetModuleOffset(uintptr_t uAddress);
 
-
-	inline void* GetVFunc(void* instance, size_t index)
+	inline void* GetVirtual(void* p, size_t i)
 	{
-		const auto vtable = *static_cast<void***>(instance);
-		return vtable[index];
+		auto vTable = *static_cast<void***>(p);
+		return vTable[i];
 	}
 
-	inline uintptr_t RelToAbs(const uintptr_t address)
+	template <size_t I, typename T, typename... Args>
+	inline T CallVirtual(void* p, Args... args) const
 	{
-#if x86
-		return *reinterpret_cast<std::uint32_t*>(address + 0x1) + address + 0x5;
-#else
-		return *reinterpret_cast<std::uint32_t*>(address + 0x3) + address + 0x7;
-#endif
+		auto vTable = *static_cast<void***>(p);
+		return reinterpret_cast<T(__fastcall*)(void*, Args...)>(vTable[I])(p, args...);
+	}
+
+	template <size_t I, typename T, typename... Args>
+	inline T CallVirtual(uintptr_t u, Args... args) const
+	{
+		auto p = reinterpret_cast<void*>(u);
+		auto vTable = *static_cast<void***>(p);
+		return reinterpret_cast<T(__fastcall*)(void*, Args...)>(vTable[I])(p, args...);
+	}
+
+	inline uintptr_t RelToAbs(uintptr_t uAddress, uintptr_t uOffset = 3)
+	{
+		return *reinterpret_cast<int32_t*>(uAddress + uOffset) + uAddress + sizeof(int32_t) + uOffset;
 	}
 
 	template <typename T>
@@ -37,4 +49,24 @@ public:
 	}
 };
 
-ADD_FEATURE_CUSTOM(CMemory, Memory, U)
+ADD_FEATURE_CUSTOM(CMemory, Memory, U);
+
+#define OFFSET(name, type, offset) inline type& name() \
+{ \
+	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
+}
+
+#define CONDGET(name, conditions, cond) inline bool name() \
+{ \
+	return conditions & cond; \
+}
+
+#define VIRTUAL(name, type, fn, index, base) inline type name() \
+{ \
+	return reinterpret_cast<fn>(U::Memory.GetVirtual(base, index))(base); \
+}
+
+#define VIRTUAL_ARGS(name, type, fn, index, base, args, ...) inline type name##args \
+{ \
+	return reinterpret_cast<fn>(U::Memory.GetVirtual(base, index))(##__VA_ARGS__); \
+}

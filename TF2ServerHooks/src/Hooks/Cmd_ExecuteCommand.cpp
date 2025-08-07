@@ -24,8 +24,8 @@ MAKE_HOOK(Cmd_ExecuteCommand, S::Cmd_ExecuteCommand(), void*,
 {
 	if (command.ArgC())
 	{
-		std::string sCommand = command[0];
-		std::deque<std::string> vArgs;
+		const char* sCommand = command[0];
+		std::deque<const char*> vArgs;
 		for (int i = 1; i < command.ArgC(); i++)
 			vArgs.push_back(command[i]);
 

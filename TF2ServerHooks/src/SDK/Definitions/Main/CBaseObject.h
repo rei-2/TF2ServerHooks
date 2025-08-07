@@ -30,26 +30,15 @@ public:
 	NETVAR(m_bDisposableBuilding, bool, "CBaseObject", "m_bDisposableBuilding");
 	NETVAR(m_bWasMapPlaced, bool, "CBaseObject", "m_bWasMapPlaced");
 	NETVAR(m_bPlasmaDisable, bool, "CBaseObject", "m_bPlasmaDisable");
-
-	VIRTUAL(GetNumBuildPoints, int, int(*)(void*), IHasBuildPoints(), 0);
-
 	inline void* IHasBuildPoints()
 	{
 		static int nOffset = U::NetVars.GetNetVar("CBaseObject", "m_iUpgradeLevel") - 340;
 		return reinterpret_cast<void*>(uintptr_t(this) + nOffset);
 	};
 
-	inline bool GetBuildPoint(int iPoint, Vec3& vecOrigin, Vec3& vecAngles)
-	{
-		void* pPoints = IHasBuildPoints();
-		return reinterpret_cast<bool(*)(void*, int, Vec3&, Vec3&)>(U::Memory.GetVFunc(pPoints, 1))(pPoints, iPoint, vecOrigin, vecAngles);
-	}
-
-	inline int GetBuildPointAttachmentIndex(int iPoint)
-	{
-		void* pPoints = IHasBuildPoints();
-		return reinterpret_cast<int(*)(void*, int)>(U::Memory.GetVFunc(pPoints, 2))(pPoints, iPoint);
-	}
+	VIRTUAL(GetNumBuildPoints, int, int(*)(void*), 0, IHasBuildPoints());
+	VIRTUAL_ARGS(GetBuildPoint, bool, bool(*)(void*, int, Vec3&, Vec3&), 1, IHasBuildPoints(), (int iPoint, Vec3& vecOrigin, Vec3& vecAngles), IHasBuildPoints(), iPoint, vecOrigin, vecAngles);
+	VIRTUAL_ARGS(GetBuildPointAttachmentIndex, int, int(*)(void*, int), 2, IHasBuildPoints(), (int iPoint), IHasBuildPoints(), iPoint);
 
 	inline bool IsDisabled()
 	{

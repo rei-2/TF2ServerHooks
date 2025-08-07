@@ -41,6 +41,7 @@ MAKE_HOOK(CTFWeaponBase_CalcIsAttackCritical, S::CTFWeaponBase_CalcIsAttackCriti
 	int nOldCritSeedRequests = pWeapon->m_nCritSeedRequests();
 	float flOldLastRapidFireCritCheckTime = pWeapon->m_flLastRapidFireCritCheckTime();
 	float flOldCritTime = pWeapon->m_flCritTime();
+	//int iOldCurrentSeed = pWeapon->m_iCurrentSeed();
 
 #if x86
 	CALL_ORIGINAL(ecx, edx);
@@ -55,14 +56,16 @@ MAKE_HOOK(CTFWeaponBase_CalcIsAttackCritical, S::CTFWeaponBase_CalcIsAttackCriti
 		"\n[CritSeedRequests] {} -> {}"
 		"\n[LastRapidFireCritCheckTime] {} -> {}"
 		"\n[CritTime] {} -> {}"
+		//"\n[CurrentSeed] {} -> {}"
 		/*"\n[Critting] {}"
 		"\n[Waiting] {}"*/,
 		flOldCritTokenBucket, pWeapon->m_flCritTokenBucket(),
 		nOldCritChecks, pWeapon->m_nCritChecks(),
 		nOldCritSeedRequests, pWeapon->m_nCritSeedRequests(),
 		flOldLastRapidFireCritCheckTime, pWeapon->m_flLastRapidFireCritCheckTime(),
-		flOldCritTime, pWeapon->m_flCritTime()
-		/*, pWeapon->m_flCritTime() > I::GlobalVars->curtime,
+		flOldCritTime, pWeapon->m_flCritTime()/*,
+		iOldCurrentSeed, pWeapon->m_iCurrentSeed(),
+		pWeapon->m_flCritTime() > I::GlobalVars->curtime,
 		I::GlobalVars->curtime < pWeapon->m_flLastRapidFireCritCheckTime() + 1.f*/
 	).c_str(), nullptr, G::DebugTarget, HUD_PRINTTALK);
 

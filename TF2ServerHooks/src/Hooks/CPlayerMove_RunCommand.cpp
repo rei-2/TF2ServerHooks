@@ -18,12 +18,14 @@ MAKE_HOOK(CPlayerMove_RunCommand, S::CPlayerMove_RunCommand(), void,
 {
 	if (G::TickInfo)
 	{
+		static auto sv_maxusrcmdprocessticks = U::ConVars.FindVar("sv_maxusrcmdprocessticks");
+
 		int nTicks = player->m_nMovementTicksForUserCmdProcessingRemaining() - 1;
 		int iIndex = player->entindex();
 		if (nTicks != mTickStorage[iIndex])
 		{
 			mTickStorage[iIndex] = nTicks;
-			SDK::OutputClient("Ticks", std::format("{}", nTicks).c_str(), player, HUD_PRINTTALK);
+			SDK::OutputClient(std::format("Ticks {} / {}", nTicks, sv_maxusrcmdprocessticks->GetInt()).c_str(), nullptr, player, HUD_PRINTCENTER);
 		}
 	}
 

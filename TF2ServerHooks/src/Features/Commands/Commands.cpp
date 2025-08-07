@@ -3,68 +3,73 @@
 #include "../../Core/Core.h"
 #include <utility>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/join.hpp>
 
-bool CCommands::Run(const std::string& cmd, std::deque<std::string>& args)
+bool CCommands::Run(const char* sCmd, std::deque<const char*>& vArgs)
 {
-	auto uHash = FNV1A::Hash32(cmd.c_str());
-	if (!CommandMap.contains(uHash))
+	std::string sLower = sCmd;
+	std::transform(sLower.begin(), sLower.end(), sLower.begin(), ::tolower);
+
+	auto uHash = FNV1A::Hash32(sLower.c_str());
+	if (!m_mCommands.contains(uHash))
 		return false;
 
-	CommandMap[uHash](args);
+	m_mCommands[uHash](vArgs);
 	return true;
 }
 
-void CCommands::Register(const std::string& name, CommandCallback callback)
+void CCommands::Register(const char* sName, CommandCallback fCallback)
 {
-	CommandMap[FNV1A::Hash32(name.c_str())] = std::move(callback);
+	m_mCommands[FNV1A::Hash32(sName)] = std::move(fCallback);
 }
 
 void CCommands::Initialize()
 {
-	Register("setcvar", [](const std::deque<std::string>& args)
+	Register("setcvar", [](const std::deque<const char*>& vArgs)
 		{
-			if (args.size() < 2)
+			if (vArgs.size() < 2)
 			{
 				SDK::Output("Usage:\n\tsetcvar <cvar> <value>");
 				return;
 			}
 
-			const auto foundCVar = I::CVar->FindVar(args[0].c_str());
-			const std::string cvarName = args[0];
-			if (!foundCVar)
+			const char* sCVar = vArgs[0];
+			auto pCVar = I::CVar->FindVar(sCVar);
+			if (!pCVar)
 			{
-				SDK::Output(std::format("Could not find {}", cvarName).c_str());
+				SDK::Output(std::format("Could not find {}", sCVar).c_str());
 				return;
 			}
 
-			auto vArgs = args; vArgs.pop_front();
-			std::string newValue = boost::algorithm::join(vArgs, " ");
-			boost::replace_all(newValue, "\"", "");
-			foundCVar->SetValue(newValue.c_str());
-			SDK::Output(std::format("Set {} to {}", cvarName, newValue).c_str());
+			std::string sValue = "";
+			for (int i = 1; i < vArgs.size(); i++)
+				sValue += std::format("{} ", vArgs[i]);
+			sValue.pop_back();
+			boost::replace_all(sValue, "\"", "");
+
+			pCVar->SetValue(sValue.c_str());
+			SDK::Output(std::format("Set {} to {}", sCVar, sValue).c_str());
 		});
 
-	Register("getcvar", [](const std::deque<std::string>& args)
+	Register("getcvar", [](const std::deque<const char*>& vArgs)
 		{
-			if (args.size() != 1)
+			if (vArgs.size() != 1)
 			{
 				SDK::Output("Usage:\n\tgetcvar <cvar>");
 				return;
 			}
 
-			const auto foundCVar = I::CVar->FindVar(args[0].c_str());
-			const std::string cvarName = args[0];
-			if (!foundCVar)
+			const char* sCVar = vArgs[0];
+			auto pCVar = I::CVar->FindVar(sCVar);
+			if (!pCVar)
 			{
-				SDK::Output(std::format("Could not find {}", cvarName).c_str());
+				SDK::Output(std::format("Could not find {}", sCVar).c_str());
 				return;
 			}
 
-			SDK::Output(std::format("Value of {} is {}", cvarName, foundCVar->GetString()).c_str());
+			SDK::Output(std::format("Value of {} is {}", sCVar, pCVar->GetString()).c_str());
 		});
 
-	Register("platfloattime", [](const std::deque<std::string>& args)
+	Register("platfloattime", [](const std::deque<const char*>& args)
 		{
 			if (args.size() != 1)
 			{
@@ -83,37 +88,37 @@ void CCommands::Initialize()
 			}
 		});
 
-	Register("debugvisuals", [](const std::deque<std::string>& args)
+	Register("debugvisuals", [](const std::deque<const char*>& args)
 		{
 			G::DebugVisuals = !G::DebugVisuals;
 			SDK::Output(std::format("Set G::DebugVisuals to {}", G::DebugVisuals).c_str());
 		});
 
-	Register("debuginfo", [](const std::deque<std::string>& args)
+	Register("debuginfo", [](const std::deque<const char*>& args)
 		{
 			G::DebugInfo = !G::DebugInfo;
 			SDK::Output(std::format("Set G::DebugInfo to {}", G::DebugInfo).c_str());
 		});
 
-	Register("tickinfo", [](const std::deque<std::string>& args)
+	Register("tickinfo", [](const std::deque<const char*>& args)
 		{
 			G::TickInfo = !G::TickInfo;
 			SDK::Output(std::format("Set G::TickInfo to {}", G::TickInfo).c_str());
 		});
 
-	Register("critinfo", [](const std::deque<std::string>& args)
+	Register("critinfo", [](const std::deque<const char*>& args)
 		{
 			G::CritInfo = !G::CritInfo;
 			SDK::Output(std::format("Set G::CritInfo to {}", G::CritInfo).c_str());
 		});
 
-	Register("serverhitboxes", [](const std::deque<std::string>& args)
+	Register("serverhitboxes", [](const std::deque<const char*>& args)
 		{
 			G::ServerHitboxes = !G::ServerHitboxes;
 			SDK::Output(std::format("Set G::ServerHitboxes to {}", G::ServerHitboxes).c_str());
 		});
 
-	Register("serverhitboxesrate", [](const std::deque<std::string>& args)
+	Register("serverhitboxesrate", [](const std::deque<const char*>& args)
 		{
 			if (args.size() != 1)
 			{
@@ -132,8 +137,8 @@ void CCommands::Initialize()
 			}
 		});
 
-	Register("unload", [](const std::deque<std::string>& args)
+	Register("unload", [](const std::deque<const char*>& args)
 		{
-			U::Core.bUnload = true;
+			U::Core.m_bUnload = true;
 		});
 }

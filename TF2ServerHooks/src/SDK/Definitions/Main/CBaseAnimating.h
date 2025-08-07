@@ -42,10 +42,8 @@ public:
 
 	NETVAR_OFF(GetModelPtr, CStudioHdr*, "CBaseAnimating", "m_flFadeScale", 36);
 
-	inline void SetupBones(matrix3x4* pBoneToWorld, int boneMask)
-	{
-		reinterpret_cast<void(*)(void*, matrix3x4*, int)>(U::Memory.GetVFunc(this, 210))(this, pBoneToWorld, boneMask);
-	}
+	VIRTUAL_ARGS(SetupBones, void, void(*)(void*, matrix3x4*, int), 210, this, (matrix3x4* pBoneToWorld, int boneMask), this, pBoneToWorld, boneMask);
+	VIRTUAL_ARGS(GetAttachment, bool, bool(*)(void*, int, Vec3&), 71, this, (int number, Vec3& origin), this, number, origin);
 
 	inline int GetHitboxGroup(int nHitbox)
 	{
@@ -166,11 +164,6 @@ public:
 #else
 		S::CBaseAnimating_DrawServerHitboxes.Call<void>(this, duration, monocolor);
 #endif
-	}
-
-	inline bool GetAttachment(int number, Vec3& origin)
-	{
-		return reinterpret_cast<bool(*)(void*, int, Vec3&)>(U::Memory.GetVFunc(this, 71))(this, number, origin);
 	}
 };
 

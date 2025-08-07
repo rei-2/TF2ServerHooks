@@ -14,10 +14,11 @@ MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManag
 	void* rcx, CBasePlayer* player, CUserCmd* cmd)
 #endif
 {
-	if (G::DebugInfo)
-	{
+	if (G::DebugVisuals || G::DebugInfo)
 		G::DebugTarget = player;
 
+	if (G::DebugInfo)
+	{
 		static auto sv_maxunlag = U::ConVars.FindVar("sv_maxunlag");
 
 		int lerpTicks = TIME_TO_TICKS(player->m_fLerpTime());
@@ -45,13 +46,7 @@ MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManag
 		}
 	}
 
-	if (!G::DebugVisuals)
-#if x86
-		CALL_ORIGINAL(ecx, edx, player, cmd);
-#else
-		CALL_ORIGINAL(rcx, player, cmd);
-#endif
-	else
+	if (G::DebugVisuals)
 	{
 		static auto sv_showlagcompensation = U::ConVars.FindVar("sv_showlagcompensation");
 		int iOriginal = sv_showlagcompensation->GetInt();
@@ -64,5 +59,13 @@ MAKE_HOOK(CLagCompensationManager_StartLagCompensation, S::CLagCompensationManag
 #endif
 
 		sv_showlagcompensation->SetValue(iOriginal);
+	}
+	else
+	{
+#if x86
+		CALL_ORIGINAL(ecx, edx, player, cmd);
+#else
+		CALL_ORIGINAL(rcx, player, cmd);
+#endif
 	}
 }

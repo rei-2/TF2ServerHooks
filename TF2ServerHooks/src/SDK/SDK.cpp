@@ -8,45 +8,45 @@ MAKE_SIGNATURE(ClientPrint, "server.dll", "55 8B EC 83 EC ? 56 8B 75 ? 85 F6 0F 
 MAKE_SIGNATURE(ClientPrint, "server.dll", "48 85 C9 0F 84 ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24", 0x0);
 #endif
 
-void SDK::Output(const char* cFunction, const char* cLog, Color_t cColor, bool bConsole, /*bool bChat,*/ bool bDebug, int bMessageBox)
+void SDK::Output(const char* cFunction, const char* cLog, Color_t tColor,
+	int iTo, int iMessageBox,
+	const char* sLeft, const char* sRight)
 {
 	static auto Msg = U::Memory.GetModuleExport<void(*)(const char* pMsgFormat, ...)>("tier0.dll", "Msg");
 	if (cLog)
 	{
-		if (bConsole)
-			Msg("[%s] %s\n", cFunction, cLog);
-		//if (bChat)
-		//	I::ClientModeShared->m_pChatElement->ChatPrintf(0, std::format("{}[{}]\x1 {}", cColor.ToHex(), cFunction, cLog).c_str());
-		if (bDebug)
-			OutputDebugString(std::format("[{}] {}\n", cFunction, cLog).c_str());
-		if (bMessageBox != -1)
-			MessageBox(nullptr, cLog, cFunction, bMessageBox);
+		if (iTo & OUTPUT_CONSOLE)
+			Msg("%s%s%s %s\n", sLeft, cFunction, sRight, cLog);
+		if (iTo & OUTPUT_DEBUG)
+			OutputDebugString(std::format("{}{}{} {}\n", sLeft, cFunction, sRight, cLog).c_str());
+		if (iMessageBox != -1)
+			MessageBox(nullptr, cLog, cFunction, iMessageBox);
 	}
 	else
 	{
-		if (bConsole)
+		if (iTo & OUTPUT_CONSOLE)
 			Msg("%s\n", cFunction);
-		//if (bChat)
-		//	I::ClientModeShared->m_pChatElement->ChatPrintf(0, std::format("{}{}\x1", cColor.ToHex(), cFunction).c_str());
-		if (bDebug)
+		if (iTo & OUTPUT_DEBUG)
 			OutputDebugString(std::format("{}\n", cFunction).c_str());
-		if (bMessageBox != -1)
-			MessageBox(nullptr, "", cFunction, bMessageBox);
+		if (iMessageBox != -1)
+			MessageBox(nullptr, "", cFunction, iMessageBox);
 	}
 }
 
-void SDK::OutputClient(const char* cFunction, const char* cLog, CBasePlayer* pPlayer, int iMessageType)
+void SDK::OutputClient(const char* cFunction, const char* cLog,
+	CBasePlayer* pPlayer, int iMessageType,
+	const char* sLeft, const char* sRight)
 {
 #if x86
 	if (cLog)
 		reinterpret_cast<void(__cdecl*)(CBasePlayer*, int, const char*, const char*, const char*, const char*, const char*)>(S::ClientPrint())
-		(pPlayer, iMessageType, std::format("[{}] {}", cFunction, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
+		(pPlayer, iMessageType, std::format("{}{}{} {}", sLeft, cFunction, sRight, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
 	else
 		reinterpret_cast<void(__cdecl*)(CBasePlayer*, int, const char*, const char*, const char*, const char*, const char*)>(S::ClientPrint())
 		(pPlayer, iMessageType, std::format("{}", cFunction).c_str(), nullptr, nullptr, nullptr, nullptr);
 #else
 	if (cLog)
-		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("[{}] {}", cFunction, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
+		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("{}{}{} {}", sLeft, cFunction, sRight, cLog).c_str(), nullptr, nullptr, nullptr, nullptr);
 	else
 		S::ClientPrint.Call<void>(pPlayer, iMessageType, std::format("{}", cFunction).c_str(), nullptr, nullptr, nullptr, nullptr);
 #endif

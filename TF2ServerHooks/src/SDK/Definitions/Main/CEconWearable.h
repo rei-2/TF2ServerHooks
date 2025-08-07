@@ -4,13 +4,6 @@
 class CEconWearable : public CEconEntity
 {
 public:
-	inline void Equip(CBasePlayer* pOwner)
-	{
-		reinterpret_cast<void(*)(void*, CBasePlayer*)>(U::Memory.GetVFunc(this, 229))(this, pOwner);
-	};
-
-	inline void UnEquip(CBasePlayer* pOwner)
-	{
-		reinterpret_cast<void(*)(void*, CBasePlayer*)>(U::Memory.GetVFunc(this, 230))(this, pOwner);
-	};
+	VIRTUAL_ARGS(Equip, void, void(*)(void*, CBasePlayer*), 229, this, (CBasePlayer* pOwner), this, pOwner);
+	VIRTUAL_ARGS(UnEquip, void, void(*)(void*, CBasePlayer*), 230, this, (CBasePlayer* pOwner), this, pOwner);
 };

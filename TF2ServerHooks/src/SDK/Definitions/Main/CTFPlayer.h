@@ -195,7 +195,7 @@ public:
 	NETVAR_OFF(m_bStunNeedsFadeOut, bool, "CTFPlayer", "m_hItem", -188);
 	NETVAR_OFF(m_bTauntForceMoveForward, bool, "CTFPlayer", "m_bAllowMoveDuringTaunt", 1);
 
-	VIRTUAL(GetMaxHealth, int, int(*)(void*), this, 107);
+	VIRTUAL(GetMaxHealth, int, int(*)(void*), 107, this);
 
 	CONDGET(IsSlowed, m_nPlayerCond(), TFCond_Slowed);
 	CONDGET(IsScoped, m_nPlayerCond(), TFCond_Zoomed);
@@ -239,39 +239,6 @@ public:
 	inline Vec3 GetEyeAngles()
 	{
 		return { m_angEyeAnglesX(), m_angEyeAnglesY(), 0.f };
-	}
-
-	inline Vec3 GetViewOffset() // use on nonlocal players
-	{
-		if (!IsPlayer())
-			return (m_vecMins() + m_vecMaxs()) / 2;
-
-		auto getMainOffset = [this]() -> Vec3
-			{
-				if (IsDucking())
-					return { 0.f, 0.f, 45.f };
-
-				switch (m_iClass())
-				{
-				case TF_CLASS_SCOUT: return { 0.f, 0.f, 65.f };
-				case TF_CLASS_SOLDIER: return { 0.f, 0.f, 68.f };
-				case TF_CLASS_PYRO: return { 0.f, 0.f, 68.f };
-				case TF_CLASS_DEMOMAN: return { 0.f, 0.f, 68.f };
-				case TF_CLASS_HEAVY: return { 0.f, 0.f, 75.f };
-				case TF_CLASS_ENGINEER: return { 0.f, 0.f, 68.f };
-				case TF_CLASS_MEDIC: return { 0.f, 0.f, 75.f };
-				case TF_CLASS_SNIPER: return { 0.f, 0.f, 75.f };
-				case TF_CLASS_SPY: return { 0.f, 0.f, 75.f };
-				}
-
-				const Vec3 vOffset = m_vecViewOffset();
-				if (vOffset.z)
-					return vOffset;
-
-				return { 0.f, 0.f, 68.f };
-			};
-
-		return getMainOffset() * m_flModelScale();
 	}
 
 	inline bool InCond(const ETFCond cond)
@@ -321,22 +288,13 @@ public:
 
 	inline bool IsInvisible()
 	{
-		if (this->InCond(TF_COND_BURNING)
-			|| this->InCond(TF_COND_BURNING_PYRO)
-			|| this->InCond(TF_COND_MAD_MILK)
-			|| this->InCond(TF_COND_URINE))
+		if (InCond(TF_COND_BURNING)
+			|| InCond(TF_COND_BURNING_PYRO)
+			|| InCond(TF_COND_MAD_MILK)
+			|| InCond(TF_COND_URINE))
 			return false;
 
 		return m_flInvisibility() >= 1.f;
-	}
-
-	inline float GetInvisPercentage()
-	{
-		static auto tf_spy_invis_time = I::CVar->FindVar("tf_spy_invis_time");
-		const float flInvisTime = tf_spy_invis_time ? tf_spy_invis_time->GetFloat() : 1.f;
-		const float GetInvisPercent = Math::RemapValClamped(m_flInvisChangeCompleteTime() - I::GlobalVars->curtime, flInvisTime, 0.f, 0.f, 100.f);
-
-		return GetInvisPercent;
 	}
 
 	inline bool IsZoomed()
@@ -390,35 +348,47 @@ public:
 			|| InCond(TF_COND_MARKEDFORDEATH_SILENT);
 	}
 
-	inline bool CanAttack()
+	inline bool CanAttack(bool bCloak)
 	{
-		if (!IsAlive() || IsTaunting() || IsBonked() || IsAGhost() || IsInBumperKart() || m_fFlags() & FL_FROZEN)
+		if (!IsAlive() || IsAGhost() || IsTaunting() || m_bViewingCYOAPDA()
+			|| InCond(TF_COND_PHASE) || InCond(TF_COND_HALLOWEEN_KART) || InCond(TF_COND_STUNNED) && m_iStunFlags() & (TF_STUN_CONTROLS | TF_STUN_LOSER_STATE))
 			return false;
 
-		if (m_iClass() == TF_CLASS_SPY)
+		if (bCloak)
 		{
-			if (m_bFeignDeathReady() && !IsCloaked())
-				return false;
-
-			//Invis
-			static float flTimer = 0.f;
-			if (IsCloaked())
+			if ((m_flStealthNoAttackExpire() > TICKS_TO_TIME(m_nTickBase()) && !InCond(TF_COND_STEALTHED_USER_BUFF)) || InCond(TF_COND_STEALTHED))
 			{
-				flTimer = 0.f;
-				return false;
-			}
-			else
-			{
-				if (!flTimer)
-					flTimer = I::GlobalVars->curtime;
-
-				if (flTimer > I::GlobalVars->curtime)
-					flTimer = 0.f;
-
-				if ((I::GlobalVars->curtime - flTimer) < 2.f)
+				auto pWeapon = m_hActiveWeapon()->As<CTFWeaponBase>();
+				if (!pWeapon || pWeapon->GetWeaponID() != TF_WEAPON_GRAPPLINGHOOK)
 					return false;
 			}
+
+			if (m_bFeignDeathReady())
+				return false;
 		}
+
+		auto pGameRules = I::TFGameRules();
+		if (pGameRules)
+		{
+			switch (pGameRules->m_iRoundState())
+			{
+			case GR_STATE_TEAM_WIN:
+				if (m_iTeamNum() != pGameRules->m_iWinningTeam())
+					return false;
+				break;
+			case GR_STATE_BETWEEN_RNDS:
+				if (m_fFlags() & FL_FROZEN)
+					return false;
+				break;
+			case GR_STATE_GAME_OVER:
+				if (m_fFlags() & FL_FROZEN || m_iTeamNum() != pGameRules->m_iWinningTeam())
+					return false;
+				break;
+			}
+		}
+
+		if (SDK::AttribHookValue(0, "no_attack", this))
+			return false;
 
 		return true;
 	}
@@ -434,13 +404,8 @@ public:
 
 	inline float GetCritMult()
 	{
-		return Math::RemapValClamped(static_cast<float>(m_iCritMult()), 0.f, 255.f, 1.f, 4.f);
+		return Math::RemapVal(static_cast<float>(m_iCritMult()), 0.f, 255.f, 1.f, 4.f);
 	}
-
-	inline void ThirdPersonSwitch(/*bool bThirdperson*/)
-	{
-		return reinterpret_cast<void(*)(void*/*, bool*/)>(U::Memory.GetVFunc(this, 255))(this/*, bThirdperson*/);
-	};
 };
 
 class CTFRagdoll : public CBaseFlex

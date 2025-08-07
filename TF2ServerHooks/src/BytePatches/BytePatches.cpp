@@ -1,5 +1,7 @@
 #include "BytePatches.h"
 
+#include "../Core/Core.h"
+
 BytePatch::BytePatch(const char* sModule, const char* sSignature, int iOffset, const char* sPatch)
 {
 	m_sModule = sModule;
@@ -12,24 +14,24 @@ BytePatch::BytePatch(const char* sModule, const char* sSignature, int iOffset, c
 	m_vOriginal.resize(m_iSize);
 }
 
-void BytePatch::Write(std::vector<byte>& bytes)
+void BytePatch::Write(std::vector<byte>& vBytes)
 {
 	DWORD flNewProtect, flOldProtect;
 	VirtualProtect(m_pAddress, m_iSize, PAGE_EXECUTE_READWRITE, &flNewProtect);
-	memcpy(m_pAddress, bytes.data(), m_iSize);
+	memcpy(m_pAddress, vBytes.data(), m_iSize);
 	VirtualProtect(m_pAddress, m_iSize, flNewProtect, &flOldProtect);
 }
 
-void BytePatch::Initialize()
+bool BytePatch::Initialize()
 {
 	if (m_bIsPatched)
-		return;
+		return true;
 
 	m_pAddress = LPVOID(U::Memory.FindSignature(m_sModule, m_sSignature));
 	if (!m_pAddress)
 	{
-		OutputDebugStringA(std::format("BytePatch::Initialize() failed to initialize:\n  {}\n  {}\n", m_sModule, m_sSignature).c_str());
-		return;
+		U::Core.AppendFailText(std::format("BytePatch::Initialize() failed to initialize:\n  {}\n  {}", m_sModule, m_sSignature).c_str());
+		return false;
 	}
 
 	m_pAddress = LPVOID(uintptr_t(m_pAddress) + m_iOffset);
@@ -40,7 +42,7 @@ void BytePatch::Initialize()
 	VirtualProtect(m_pAddress, m_iSize, flNewProtect, &flOldProtect);
 
 	Write(m_vPatch);
-	m_bIsPatched = true;
+	return m_bIsPatched = true;
 }
 
 void BytePatch::Unload()
@@ -54,22 +56,23 @@ void BytePatch::Unload()
 
 
 
-void CBytePatches::Initialize()
+bool CBytePatches::Initialize()
 {
-#if x86
-	m_vPatches = {};
-#else
 	m_vPatches = {
-		//BytePatch("server.dll", "75 ? 44 38 A7 ? ? ? ? 75 ? 41 3B DD", 0x0, "EB") // speedhack
+		//BytePatch("server.dll", "75 ? 44 38 A7 ? ? ? ? 75 ? 41 3B DD", 0x0, "EB"), // speedhack
 	};
-#endif
 
-	for (auto& patch : m_vPatches)
-		patch.Initialize();
+	for (auto& tPatch : m_vPatches)
+	{
+		if (!tPatch.Initialize())
+			m_bFailed = true;
+	}
+
+	return !m_bFailed;
 }
 
 void CBytePatches::Unload()
 {
-	for (auto& patch : m_vPatches)
-		patch.Unload();
+	for (auto& tPatch : m_vPatches)
+		tPatch.Unload();
 }

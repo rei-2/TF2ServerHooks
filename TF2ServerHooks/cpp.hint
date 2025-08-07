@@ -49,17 +49,42 @@ namespace MAKE_INTERFACE_SCOPE \
 	static int nOffset = U::NetVars.GetNetVar(table, name) + offset; \
 	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset); \
 }
+#define NETVAR_ARRAY(_name, type, table, size, name) inline type& _name(int iIndex) \
+{ \
+	static int nOffset = U::NetVars.GetNetVar(table, name); \
+	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset + iIndex * sizeof(type)); \
+}
+#define NETVAR_ARRAY_OFF(_name, type, table, name, size, offset) inline type& _name(int iIndex) \
+{ \
+	static int nOffset = U::NetVars.GetNetVar(table, name) + offset; \
+	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset + iIndex * sizeof(type)); \
+}
 #define OFFSET(name, type, offset) inline type& name() \
 { \
 	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
 }
-#define VIRTUAL(name, type, fn, base, index) inline type name() \
-{ \
-	return reinterpret_cast<fn>(U::Memory.GetVFunc(base, index))(base); \
-}
+
 #define CONDGET(name, conditions, cond) inline bool name() \
 { \
-	return (conditions & cond); \
+	return conditions & cond; \
+}
+
+#define VIRTUAL(name, type, fn, index, base) inline type name() \
+{ \
+	return reinterpret_cast<fn>(U::Memory.GetVirtual(base, index))(base); \
+}
+
+#define VIRTUAL_ARGS(name, type, fn, index, base, args, ...) inline type name##args \
+{ \
+	return reinterpret_cast<fn>(U::Memory.GetVirtual(base, index))(##__VA_ARGS__); \
+}
+#define SIGNATURE(name, type, fn, sig, ...) inline type name() \
+{ \
+	return reinterpret_cast<fn>(S::sig##_##name())(##__VA_ARGS__); \
+}
+#define SIGNATURE_ARGS(name, type, fn, sig, args, ...) inline type name##args \
+{ \
+	return reinterpret_cast<fn>(S::sig##_##name())(##__VA_ARGS__); \
 }
 
 #define VA_LIST(...) __VA_ARGS__

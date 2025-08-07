@@ -1,8 +1,10 @@
 #include "Events.h"
 
-void CEventListener::Initialize()
+#include "../../Core/Core.h"
+
+bool CEventListener::Initialize()
 {
-	std::vector<const char*> vEvents = { 
+	std::vector<const char*> vEvents = {
 		
 	};
 
@@ -11,8 +13,13 @@ void CEventListener::Initialize()
 		I::GameEventManager->AddListener(this, szEvent, false);
 
 		if (!I::GameEventManager->FindListener(this, szEvent))
-			SDK::Output("Amalgam", std::format("Failed to add listener: {}", szEvent).c_str(), { 255, 150, 175, 255 });
+		{
+			U::Core.AppendFailText(std::format("Failed to add listener: {}", szEvent).c_str());
+			m_bFailed = true;
+		}
 	}
+
+	return !m_bFailed;
 }
 
 void CEventListener::Unload()
@@ -22,11 +29,5 @@ void CEventListener::Unload()
 
 void CEventListener::FireGameEvent(IGameEvent* pEvent)
 {
-	if (!pEvent)
-		return;
 
-	//auto pLocal = H::Entities.GetLocal();
-	//auto uHash = FNV1A::Hash32(pEvent->GetName());
-
-	return;
 }

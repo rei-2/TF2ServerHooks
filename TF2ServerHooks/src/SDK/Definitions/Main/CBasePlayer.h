@@ -89,15 +89,11 @@ public:
 	CONDGET(IsInWater, m_fFlags(), FL_INWATER);
 	CONDGET(IsDucking, m_fFlags(), FL_DUCKING);
 
-	VIRTUAL(PreThink, void, void(*)(void*), this, 261);
-	VIRTUAL(Think, void, void(*)(void*), this, 121);
-	VIRTUAL(PostThink, void, void(*)(void*), this, 262);
-	VIRTUAL(GetRenderedWeaponModel, CBaseAnimating*, CBaseAnimating*(*)(void*), this, 251);
-	
-	inline void SelectItem(const char* ptr, int subtype)
-	{
-		reinterpret_cast<void(*)(void*, const char*, int)>(U::Memory.GetVFunc(this, 271))(this, ptr, subtype);
-	}
+	VIRTUAL(PreThink, void, void(*)(void*), 261, this);
+	VIRTUAL(Think, void, void(*)(void*), 121, this);
+	VIRTUAL(PostThink, void, void(*)(void*), 262, this);
+	VIRTUAL(GetRenderedWeaponModel, CBaseAnimating*, CBaseAnimating*(*)(void*), 251, this);
+	VIRTUAL_ARGS(SelectItem, void, void(*)(void*, const char*, int), 271, this, (const char* ptr, int subtype), this, ptr, subtype);
 
 	inline bool IsAlive()
 	{

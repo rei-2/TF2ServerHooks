@@ -1,35 +1,44 @@
 #include "Signatures.h"
 
 #include "../Memory/Memory.h"
+#include "../../Core/Core.h"
 #include <string>
 #include <format>
 
 CSignature::CSignature(const char* sDLLName, const char* sSignature, int nOffset, const char* sName)
 {
-	m_pszDLLName = sDLLName;
-	m_pszSignature = sSignature;
+	m_dwVal = 0x0;
+	m_sDLLName = sDLLName;
+	m_sSignature = sSignature;
 	m_nOffset = nOffset;
-	m_pszName = sName;
+	m_sName = sName;
 
 	U::Signatures.AddSignature(this);
 }
 
-void CSignature::Initialize()
+bool CSignature::Initialize()
 {
-	m_dwVal = U::Memory.FindSignature(m_pszDLLName, m_pszSignature);
+	m_dwVal = U::Memory.FindSignature(m_sDLLName, m_sSignature);
 	if (!m_dwVal)
-		OutputDebugStringA(std::format("CSignature::Initialize() failed to initialize:\n  {}\n  {}\n  {}\n", m_pszName, m_pszDLLName, m_pszSignature).c_str());
+	{
+		U::Core.AppendFailText(std::format("CSignature::Initialize() failed to initialize:\n  {}\n  {}\n  {}", m_sName, m_sDLLName, m_sSignature).c_str());
+		return false;
+	}
 
 	m_dwVal += m_nOffset;
+	return true;
 }
 
-void CSignatures::Initialize()
+bool CSignatures::Initialize()
 {
-	for (auto Signature : m_vecSignatures)
+	for (auto pSignature : m_vSignatures)
 	{
-		if (!Signature)
+		if (!pSignature)
 			continue;
 
-		Signature->Initialize();
+		if (!pSignature->Initialize())
+			m_bFailed = true;
 	}
+
+	return !m_bFailed;
 }

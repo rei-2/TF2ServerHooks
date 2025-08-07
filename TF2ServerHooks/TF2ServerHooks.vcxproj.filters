@@ -135,13 +135,13 @@
     <ClCompile Include="src\Hooks\CPlayerMove_RunCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hooks\UTIL_EntitiesInSphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Hooks\CTFWeaponBaseMelee_DoSwingTraceInternal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Hooks\CTFWeaponBase_CalcIsAttackCritical.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\UTIL_EntitiesInSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -662,16 +662,13 @@
     <ClInclude Include="src\SDK\SDK.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Assert\Assert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Utils\ConVars\ConVars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\CrashLog\CrashLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Feature\Feature.h">
+    <ClInclude Include="src\Utils\Macros\Macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\Hash\FNV1A.h">

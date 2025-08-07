@@ -1,12 +1,11 @@
 #include "Interfaces.h"
 
-#include "../../Utils/Assert/Assert.h"
-
-#define Validate(x) AssertCustom(x, std::format("H::Interfaces.Initialize() Failed to initialize {}", #x).c_str())
+#define Validate(x) if (!x) { U::Core.AppendFailText("CNullInterfaces::Initialize() failed to initialize "#x); m_bFailed = true; }
+#define ValidateNonLethal(x) if (!x) { const char* sMessage = "CNullInterfaces::Initialize() failed to initialize "#x; MessageBox(nullptr, sMessage, "Warning", MB_OK | MB_ICONERROR); U::Core.AppendFailText(sMessage); }
 
 //MAKE_SIGNATURE(Get_SteamNetworkingUtils, "client.dll", "40 53 48 83 EC ? 48 8B D9 48 8D 15 ? ? ? ? 33 C9 FF 15 ? ? ? ? 33 C9", 0x0);
 
-void CNullInterfaces::Initialize()
+bool CNullInterfaces::Initialize()
 {
 	/*
 	const HSteamPipe hsNewPipe = I::SteamClient->CreateSteamPipe();
@@ -33,4 +32,6 @@ void CNullInterfaces::Initialize()
 	S::Get_SteamNetworkingUtils.Call<ISteamNetworkingUtils*>(&I::SteamNetworkingUtils);
 	Validate(I::SteamNetworkingUtils);
 	*/
+
+	return !m_bFailed;
 }

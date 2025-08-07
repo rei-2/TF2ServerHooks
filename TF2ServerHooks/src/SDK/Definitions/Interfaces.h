@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Utils/Feature/Feature.h"
+#include "../../Utils/Macros/Macros.h"
 
 #include "Interfaces/CEntityList.h"
 #include "Interfaces/CGlobalVarsBase.h"
@@ -21,8 +21,11 @@
 
 class CNullInterfaces
 {
+private:
+	bool m_bFailed = false;
+
 public:
-	void Initialize();
+	bool Initialize();
 };
 
 ADD_FEATURE_CUSTOM(CNullInterfaces, Interfaces, H);

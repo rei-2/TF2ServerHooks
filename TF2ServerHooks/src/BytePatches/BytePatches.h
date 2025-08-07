@@ -1,8 +1,9 @@
 #include "../SDK/SDK.h"
-#include "../Utils/Feature/Feature.h"
+#include "../Utils/Macros/Macros.h"
 
 class BytePatch
 {
+private:
 	const char* m_sModule = nullptr;
 	const char* m_sSignature = nullptr;
 	int m_iOffset = 0x0;
@@ -12,19 +13,22 @@ class BytePatch
 	LPVOID m_pAddress = 0;
 	bool m_bIsPatched = false;
 
-	void Write(std::vector<byte>& bytes);
+	void Write(std::vector<byte>& vBytes);
 
 public:
 	BytePatch(const char* sModule, const char* sSignature, int iOffset, const char* sPatch);
 
-	void Initialize();
+	bool Initialize();
 	void Unload();
 };
 
 class CBytePatches
 {
+private:
+	bool m_bFailed = false;
+
 public:
-	void Initialize();
+	bool Initialize();
 	void Unload();
 
 	std::vector<BytePatch> m_vPatches = {};

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Feature/Feature.h"
+#include "../Macros/Macros.h"
 #include "../../SDK/Definitions/Misc/dt_send.h"
 #include <cstdint>
 
@@ -24,17 +24,14 @@ ADD_FEATURE_CUSTOM(CNetVars, NetVars, U);
 	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset); \
 }
 
-#define OFFSET(name, type, offset) inline type& name() \
+#define NETVAR_ARRAY(_name, type, table, name) inline type& _name(int iIndex) \
 { \
-	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
+	static int nOffset = U::NetVars.GetNetVar(table, name); \
+	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset + iIndex * sizeof(type)); \
 }
 
-#define VIRTUAL(name, type, fn, base, index) inline type name() \
+#define NETVAR_ARRAY_OFF(_name, type, table, name, offset) inline type& _name(int iIndex) \
 { \
-	return reinterpret_cast<fn>(U::Memory.GetVFunc(base, index))(base); \
-}
-
-#define CONDGET(name, conditions, cond) inline bool name() \
-{ \
-	return (conditions & cond); \
+	static int nOffset = U::NetVars.GetNetVar(table, name) + offset; \
+	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset + iIndex * sizeof(type)); \
 }
