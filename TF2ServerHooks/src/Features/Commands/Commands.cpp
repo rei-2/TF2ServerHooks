@@ -137,6 +137,43 @@ void CCommands::Initialize()
 			}
 		});
 
+	Register("drawhitboxes", [](const std::deque<const char*>& args)
+		{
+			G::DrawHitboxes = !G::DrawHitboxes;
+			SDK::Output(std::format("Set G::DrawHitboxes to {}", G::DrawHitboxes).c_str());
+		});
+
+	Register("drawboundingbox", [](const std::deque<const char*>& args)
+		{
+			G::DrawBoundingBox = !G::DrawBoundingBox;
+			SDK::Output(std::format("Set G::DrawBoundingBox to {}", G::DrawBoundingBox).c_str());
+		});
+
+	Register("drawheadonly", [](const std::deque<const char*>& args)
+		{
+			G::DrawHeadOnly = !G::DrawHeadOnly;
+			SDK::Output(std::format("Set G::DrawHeadOnly to {}", G::DrawHeadOnly).c_str());
+		});
+
+	Register("drawduration", [](const std::deque<const char*>& args)
+		{
+			if (args.size() != 1)
+			{
+				SDK::Output("Usage:\n\tdrawduration <float> (0 to disable override)");
+				return;
+			}
+
+			try
+			{
+				G::DrawDuration = std::stof(args[0]);
+				SDK::Output(std::format("Set G::DrawDuration to {}", G::DrawDuration).c_str());
+			}
+			catch (...)
+			{
+				SDK::Output("Failed to set G::DrawDuration");
+			}
+		});
+
 	Register("unload", [](const std::deque<const char*>& args)
 		{
 			U::Core.m_bUnload = true;

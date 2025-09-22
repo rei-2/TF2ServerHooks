@@ -23,13 +23,14 @@ MAKE_HOOK(CTFProjectile_Arrow_ArrowTouch, S::CTFProjectile_Arrow_ArrowTouch(), v
 
 		if (pOwner && pOwner->IsPlayer())
 		{
+			bool bOldBoundingBox = G::DrawBoundingBox, bOldHeadOnly = G::DrawHeadOnly;
 			G::DrawBoundingBox = true, G::DrawHeadOnly = true;
 			G::DebugTarget = pOwner->As<CBasePlayer>();
 			pOther->As<CTFPlayer>()->DrawServerHitboxes(5.f);
 			G::NoBoxAngles = true;
 			pOther->As<CTFPlayer>()->DrawServerHitboxes(5.f);
 			G::NoBoxAngles = false;
-			G::DrawBoundingBox = false, G::DrawHeadOnly = false;
+			G::DrawBoundingBox = bOldBoundingBox, G::DrawHeadOnly = bOldHeadOnly;
 
 			Vec3 origin = pArrow->m_vecOrigin();
 			Vec3 mins = pArrow->m_vecMins();
@@ -38,7 +39,7 @@ MAKE_HOOK(CTFProjectile_Arrow_ArrowTouch, S::CTFProjectile_Arrow_ArrowTouch(), v
 			int r = 255, g = 127, b = 127, a = 0;
 			float duration = 5.f;
 
-			SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", origin.x, origin.y, origin.z, mins.x, mins.y, mins.z, maxs.x, maxs.y, maxs.z, angles.x, angles.y, angles.z, r, g, b, a, duration).c_str(), G::DebugTarget);
+			SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", origin.x, origin.y, origin.z, mins.x, mins.y, mins.z, maxs.x, maxs.y, maxs.z, angles.x, angles.y, angles.z, r, g, b, a, G::DrawDuration ? G::DrawDuration : duration).c_str(), G::DebugTarget);
 		}
 	}
 #endif

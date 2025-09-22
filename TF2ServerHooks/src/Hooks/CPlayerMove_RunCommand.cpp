@@ -6,7 +6,7 @@ MAKE_SIGNATURE(CPlayerMove_RunCommand, "server.dll", "55 8B EC 83 EC ? 56 57 8B 
 MAKE_SIGNATURE(CPlayerMove_RunCommand, "server.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 41 54 41 55 41 56 41 57 48 83 EC ? 8B 9A", 0x0);
 #endif
 
-static std::unordered_map<int, int> mTickStorage = {};
+static std::unordered_map<int, int> s_mTickStorage = {};
 
 #if x86
 MAKE_HOOK(CPlayerMove_RunCommand, S::CPlayerMove_RunCommand(), void, __fastcall,
@@ -22,9 +22,9 @@ MAKE_HOOK(CPlayerMove_RunCommand, S::CPlayerMove_RunCommand(), void,
 
 		int nTicks = player->m_nMovementTicksForUserCmdProcessingRemaining() - 1;
 		int iIndex = player->entindex();
-		if (nTicks != mTickStorage[iIndex])
+		if (nTicks != s_mTickStorage[iIndex])
 		{
-			mTickStorage[iIndex] = nTicks;
+			s_mTickStorage[iIndex] = nTicks;
 			SDK::OutputClient(std::format("Ticks {} / {}", nTicks, sv_maxusrcmdprocessticks->GetInt()).c_str(), nullptr, player, HUD_PRINTCENTER);
 		}
 	}

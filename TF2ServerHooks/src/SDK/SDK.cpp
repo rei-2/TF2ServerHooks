@@ -70,8 +70,8 @@ std::string SDK::ConvertWideToUTF8(const std::wstring& source)
 
 double SDK::PlatFloatTime()
 {
-	static auto fnPlatFloatTime = U::Memory.GetModuleExport<double(*)()>("tier0.dll", "Plat_FloatTime");
-	return fnPlatFloatTime();
+	static auto Plat_FloatTime = U::Memory.GetModuleExport<double(*)()>("tier0.dll", "Plat_FloatTime");
+	return Plat_FloatTime();
 }
 
 int SDK::StdRandomInt(int min, int max)
@@ -114,20 +114,20 @@ int SDK::SharedRandomInt(unsigned iseed, const char* sharedname, int iMinVal, in
 
 void SDK::RandomSeed(int iSeed)
 {
-	static auto fnRandomSeed = reinterpret_cast<void(*)(uint32_t)>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomSeed"));
-	fnRandomSeed(iSeed);
+	static auto RandomSeed = reinterpret_cast<void(*)(uint32_t)>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomSeed"));
+	RandomSeed(iSeed);
 }
 
 int SDK::RandomInt(int iMinVal, int iMaxVal)
 {
-	static auto fnRandomInt = reinterpret_cast<int(*)(int, int)>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomInt"));
-	return fnRandomInt(iMinVal, iMaxVal);
+	static auto RandomInt = reinterpret_cast<int(*)(int, int)>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomInt"));
+	return RandomInt(iMinVal, iMaxVal);
 }
 
 float SDK::RandomFloat(float flMinVal, float flMaxVal)
 {
-	static auto fnRandomFloat = reinterpret_cast<float(*)(float, float)>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomFloat"));
-	return fnRandomFloat(flMinVal, flMaxVal);
+	static auto RandomFloat = reinterpret_cast<float(*)(float, float)>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomFloat"));
+	return RandomFloat(flMinVal, flMaxVal);
 }
 
 int SDK::HandleToIDX(unsigned int pHandle)

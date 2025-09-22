@@ -42,9 +42,9 @@ MAKE_HOOK(CTFWeaponBaseMelee_DoSwingTraceInternal, S::CTFWeaponBaseMelee_DoSwing
 			Vec3 vStart; pPlayer->EyePosition(vStart);
 			Vec3 vEnd = vStart + vForward * flRange;
 
-			SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z, vEnd.x, vEnd.y, vEnd.z, 0, 0, 255, 0, 4.f).c_str(), G::DebugTarget);
-			SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z, -flHull, -flHull, -flHull, flHull, flHull, flHull, 0, 0, 0, 0, 0, 255, 0, 4).c_str(), G::DebugTarget);
-			SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", vEnd.x, vEnd.y, vEnd.z, -flHull, -flHull, -flHull, flHull, flHull, flHull, 0, 0, 0, 0, 0, 255, 0, 4).c_str(), G::DebugTarget);
+			SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z, vEnd.x, vEnd.y, vEnd.z, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+			SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z, -flHull, -flHull, -flHull, flHull, flHull, flHull, 0, 0, 0, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+			SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", vEnd.x, vEnd.y, vEnd.z, -flHull, -flHull, -flHull, flHull, flHull, flHull, 0, 0, 0, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 		}
 	}
 

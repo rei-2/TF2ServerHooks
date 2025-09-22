@@ -43,7 +43,7 @@ MAKE_HOOK(UTIL_EntitiesInSphere, S::UTIL_EntitiesInSphere(), int,
 
 	int iReturn = CALL_ORIGINAL(center, radius, pEnum);
 
-	SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", center.x, center.y, center.z, -radius, -radius, -radius, radius, radius, radius, 0, 0, 0, 0, 0, 255, 0, 4).c_str(), G::DebugTarget);
+	SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", center.x, center.y, center.z, -radius, -radius, -radius, radius, radius, radius, 0, 0, 0, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 	std::unordered_map<CBaseEntity*, bool> mEntities = {};
 	for (int i = 0; i < iReturn; i++)
 	{
@@ -54,9 +54,9 @@ MAKE_HOOK(UTIL_EntitiesInSphere, S::UTIL_EntitiesInSphere(), int,
 		mEntities[pEntity] = true;
 
 		Vec3 vOrigin = pEntity->m_vecOrigin();
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x + 10, vOrigin.y, vOrigin.z, 0, 255, 255, 0, 4.f).c_str(), G::DebugTarget);
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y + 10, vOrigin.z, 255, 0, 255, 0, 4.f).c_str(), G::DebugTarget);
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y, vOrigin.z + 10, 255, 255, 0, 0, 4.f).c_str(), G::DebugTarget);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x + 10, vOrigin.y, vOrigin.z, 0, 255, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y + 10, vOrigin.z, 255, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y, vOrigin.z + 10, 255, 255, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 	}
 	for (CBaseEntity* pEntity = I::GlobalEntityList->FirstEnt(); pEntity; pEntity = I::GlobalEntityList->NextEnt(pEntity))
 	{
@@ -64,9 +64,9 @@ MAKE_HOOK(UTIL_EntitiesInSphere, S::UTIL_EntitiesInSphere(), int,
 			continue;
 
 		Vec3 vOrigin = pEntity->m_vecOrigin();
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x - 10, vOrigin.y, vOrigin.z, 0, 0, 0, 0, 4.f).c_str(), G::DebugTarget);
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y - 10, vOrigin.z, 0, 0, 0, 0, 4.f).c_str(), G::DebugTarget);
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y, vOrigin.z - 10, 0, 0, 0, 0, 4.f).c_str(), G::DebugTarget);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x - 10, vOrigin.y, vOrigin.z, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y - 10, vOrigin.z, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vOrigin.x, vOrigin.y, vOrigin.z, vOrigin.x, vOrigin.y, vOrigin.z - 10, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 	}
 
 	return iReturn;

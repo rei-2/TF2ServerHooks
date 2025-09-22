@@ -31,7 +31,7 @@ MAKE_SIGNATURE(UTIL_ClipTraceToPlayers, "server.dll", "48 8B C4 48 89 70 ? 48 89
 #endif
 
 //static Vec3 vStart = {}, vEnd = {};
-static CTFPlayer* pPlayer = nullptr;
+static CTFPlayer* s_pPlayer = nullptr;
 
 #if x86
 MAKE_HOOK(CTFPlayer_FireBullet, S::CTFPlayer_FireBullet(), void, __fastcall,
@@ -42,9 +42,9 @@ MAKE_HOOK(CTFPlayer_FireBullet, S::CTFPlayer_FireBullet(), void,
 #endif
 {
 #if x86
-		pPlayer = reinterpret_cast<CTFPlayer*>(ecx);
+	s_pPlayer = reinterpret_cast<CTFPlayer*>(ecx);
 #else
-		pPlayer = reinterpret_cast<CTFPlayer*>(rcx);
+	s_pPlayer = reinterpret_cast<CTFPlayer*>(rcx);
 #endif
 
 	/*
@@ -52,9 +52,9 @@ MAKE_HOOK(CTFPlayer_FireBullet, S::CTFPlayer_FireBullet(), void,
 	Vec3 vEnd = vStart + info.m_vecDirShooting * info.m_flDistance;
 	if (G::DebugVisuals)
 #if x86
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, 4.f).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), pPlayer);
 #else
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, 4.f).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), pPlayer);
 #endif
 	*/
 
@@ -76,7 +76,7 @@ MAKE_HOOK(UTIL_PlayerBulletTrace, S::UTIL_PlayerBulletTrace(), void,
 	CALL_ORIGINAL(vecStart, vecEnd, vecDir, mask, pFilter, trace);
 
 	if (G::DebugVisuals)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecStart.x, vecStart.y, vecStart.z, trace->endpos.x, trace->endpos.y, trace->endpos.z, 0, 0, 255, 0, 4.f).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecStart.x, vecStart.y, vecStart.z, trace->endpos.x, trace->endpos.y, trace->endpos.z, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), s_pPlayer);
 }
 
 #if x86
@@ -93,7 +93,7 @@ MAKE_HOOK(UTIL_TraceLine, S::UTIL_TraceLine(), void,
 	CALL_ORIGINAL(vecAbsStart, vecAbsEnd, mask, pFilter, ptr);
 
 	if (G::DebugVisuals && dwDesired == dwRetAddr)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z + 1, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z + 1, 255, 0, 0, 0, 4.f).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z + 1, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z + 1, 255, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), s_pPlayer);
 }
 
 #if x86
@@ -107,5 +107,5 @@ MAKE_HOOK(UTIL_ClipTraceToPlayers, S::UTIL_ClipTraceToPlayers(), void,
 	CALL_ORIGINAL(vecAbsStart, vecAbsEnd, mask, filter, tr);
 
 	if (G::DebugVisuals)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z - 1, tr->endpos.x, tr->endpos.y, tr->endpos.z - 1, 255, 0, 255, 0, 4.f).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z - 1, tr->endpos.x, tr->endpos.y, tr->endpos.z - 1, 255, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), s_pPlayer);
 }

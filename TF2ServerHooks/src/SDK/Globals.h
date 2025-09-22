@@ -20,12 +20,14 @@ namespace G
 	inline bool ServerHitboxes = false;
 	inline int ServerHitboxesRate = 4;
 	inline bool NoBoxAngles = false;
+	inline bool DrawHitboxes = true;
 	inline bool DrawBoundingBox = false;
 	inline bool DrawHeadOnly = false;
+	inline float DrawDuration = 0.f;
 
 	inline int* RandomSeed()
 	{
-		static auto dest = U::Memory.RelToAbs(S::RandomSeed());
-		return reinterpret_cast<int*>(dest);
+		static auto pRandomSeed = reinterpret_cast<int*>(U::Memory.RelToAbs(S::RandomSeed()));
+		return pRandomSeed;
 	}
 };

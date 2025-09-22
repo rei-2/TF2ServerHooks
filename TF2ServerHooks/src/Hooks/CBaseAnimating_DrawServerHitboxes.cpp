@@ -17,9 +17,11 @@ MAKE_HOOK(CBaseAnimating_DrawServerHitboxes, S::CBaseAnimating_DrawServerHitboxe
 		Vec3 angles = {};
 		int r = 255, g = 127, b = 127, a = 0;
 
-		SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", origin.x, origin.y, origin.z, mins.x, mins.y, mins.z, maxs.x, maxs.y, maxs.z, angles.x, angles.y, angles.z, r, g, b, a, duration).c_str(), G::DebugTarget);
+		SDK::OutputClient("Box", std::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", origin.x, origin.y, origin.z, mins.x, mins.y, mins.z, maxs.x, maxs.y, maxs.z, angles.x, angles.y, angles.z, r, g, b, a, G::DrawDuration ? G::DrawDuration : duration).c_str(), G::DebugTarget);
 	}
 
+	if (!G::DrawHitboxes)
+		return;
 	if (G::DrawHeadOnly)
 		monocolor = false;
 
