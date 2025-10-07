@@ -144,6 +144,9 @@
     <ClCompile Include="src\Hooks\UTIL_EntitiesInSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hooks\CBaseMultiplayerPlayer_EscortScoringThink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MinHook\hde\hde32.h">

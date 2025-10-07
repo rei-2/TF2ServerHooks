@@ -193,6 +193,7 @@
     <ClCompile Include="src\DllMain.cpp" />
     <ClCompile Include="src\Features\Commands\Commands.cpp" />
     <ClCompile Include="src\Hooks\CBaseAnimating_DrawServerHitboxes.cpp" />
+    <ClCompile Include="src\Hooks\CBaseMultiplayerPlayer_EscortScoringThink.cpp" />
     <ClCompile Include="src\Hooks\CBasePlayer_ProcessUsercmds.cpp" />
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp" />
     <ClCompile Include="src\Hooks\CPlayerMove_RunCommand.cpp" />
