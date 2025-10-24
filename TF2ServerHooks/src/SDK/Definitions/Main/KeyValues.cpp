@@ -11,31 +11,30 @@ MAKE_SIGNATURE(KeyValues_LoadFromBuffer, "engine.dll", "4C 89 4C 24 ? 48 89 4C 2
 #endif
 
 #if x86
-MAKE_SIGNATURE(KeyValues_Initialize, "engine.dll", "55 8B EC 56 8B F1 6A ? FF 75 ? C7 06 ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? FF 15 ? ? ? ? 83 C4 ? 89 06 8B C6", 0x0);
+MAKE_SIGNATURE(KeyValues_Initialize, "engine.dll", "55 8B EC 56 8B F1 6A ? FF 75 ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 06 ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? C7 46 ? ? ? ? ? FF 15 ? ? ? ? 83 C4 ? 89 06 8B C6", 0x0);
 #else
-MAKE_SIGNATURE(KeyValues_Initialize, "engine.dll", "40 53 48 83 EC ? 48 8B D9 C7 01", 0x0);
+MAKE_SIGNATURE(KeyValues_Initialize, "engine.dll", "40 53 48 83 EC ? 48 8B D9 C6 41 ? ? 33 C9 48 8B C2", 0x0);
 #endif
 
 #if x86
-MAKE_SIGNATURE(KeyValues_FindKey, "server.dll", "55 8B EC 81 EC ? ? ? ? 56 8B 75 ? 57 8B F9 85 F6 0F 84 ? ? ? ? 80 3E", 0x0);
+MAKE_SIGNATURE(KeyValues_FindKey, "server.dll", "55 8B EC 81 EC ? ? ? ? 56 57 8B 7D ? 8B F1 85 FF 0F 84 ? ? ? ? 80 3F", 0x0);
 #else
-MAKE_SIGNATURE(KeyValues_FindKey, "server.dll", "48 8B C4 53 57 41 56", 0x0);
+MAKE_SIGNATURE(KeyValues_FindKey, "server.dll", "48 8B C4 53 55 56 48 81 EC", 0x0);
 #endif
 
-int UnicodeToUTF8(const wchar_t* unicode, char* ansi, int ansiBufferSize)
+static int UnicodeToUTF8(const wchar_t* unicode, char* ansi, int ansiBufferSize)
 {
 	int result = WideCharToMultiByte(CP_UTF8, 0, unicode, -1, ansi, ansiBufferSize, NULL, NULL);
 	ansi[ansiBufferSize - 1] = 0;
 	return result;
 }
 
-int UTF8ToUnicode(const char* ansi, wchar_t* unicode, int unicodeBufferSizeInBytes)
+static int UTF8ToUnicode(const char* ansi, wchar_t* unicode, int unicodeBufferSizeInBytes)
 {
 	int chars = MultiByteToWideChar(CP_UTF8, 0, ansi, -1, unicode, unicodeBufferSizeInBytes / sizeof(wchar_t));
 	unicode[(unicodeBufferSizeInBytes / sizeof(wchar_t)) - 1] = 0;
 	return chars;
 }
-
 
 bool KeyValues::LoadFromBuffer(char const* resource_name, const char* buffer, void* file_system, const char* path_id)
 {

@@ -77,20 +77,23 @@ MAKE_HOOK(CTFWeaponBase_IncrementAmmo, S::CTFWeaponBase_IncrementAmmo(), void,
 	void* rcx)
 #endif
 {
-#if x86
-	auto pWeapon = reinterpret_cast<CTFWeaponBase*>(ecx);
-#else
-	auto pWeapon = reinterpret_cast<CTFWeaponBase*>(rcx);
-#endif
-	auto pLocal = pWeapon->m_hOwnerEntity()->As<CTFPlayer>();
-	if (pLocal && pWeapon)
+	if (G::DebugInfo)
 	{
-		SDK::Output("IncrementAmmo", std::format("{}\n\t{}, {}\n\t{}, {}",
-			pWeapon->m_iClip1(),
-			TIME_TO_TICKS(pLocal->m_flNextAttack() - I::GlobalVars->curtime),
-			pLocal->m_flNextAttack() - I::GlobalVars->curtime,
-			TIME_TO_TICKS(I::GlobalVars->curtime - pWeapon->m_flReloadPriorNextFire()),
-			I::GlobalVars->curtime - pWeapon->m_flReloadPriorNextFire()).c_str());
+#if x86
+		auto pWeapon = reinterpret_cast<CTFWeaponBase*>(ecx);
+#else
+		auto pWeapon = reinterpret_cast<CTFWeaponBase*>(rcx);
+#endif
+		auto pLocal = pWeapon->m_hOwnerEntity()->As<CTFPlayer>();
+		if (pLocal && pWeapon)
+		{
+			SDK::Output("IncrementAmmo", std::format("{}\n\t{}, {}\n\t{}, {}",
+				pWeapon->m_iClip1(),
+				TIME_TO_TICKS(pLocal->m_flNextAttack() - I::GlobalVars->curtime),
+				pLocal->m_flNextAttack() - I::GlobalVars->curtime,
+				TIME_TO_TICKS(I::GlobalVars->curtime - pWeapon->m_flReloadPriorNextFire()),
+				I::GlobalVars->curtime - pWeapon->m_flReloadPriorNextFire()).c_str());
+		}
 	}
 
 #if x86
