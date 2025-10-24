@@ -63,7 +63,6 @@ void CCore::Load()
 		return;
 	if (m_bUnload = m_bFailed2 = !U::Hooks.Initialize() || !U::BytePatches.Initialize() || !H::Events.Initialize())
 		return;
-	U::ConVars.Initialize();
 	F::Commands.Initialize();
 
 	SDK::Output("TF2ServerHooks", "Loaded", { 175, 150, 255 }, OUTPUT_CONSOLE | OUTPUT_DEBUG);
@@ -89,7 +88,7 @@ void CCore::Unload()
 	H::Events.Unload();
 
 	Sleep(250);
-	U::ConVars.Unload();
+	U::ConVars.Restore();
 
 	if (m_bFailed2)
 	{

@@ -7,12 +7,14 @@
 class CConVars
 {
 private:
-	std::unordered_map<uint32_t, ConVar*> mCVarMap = {};
-	std::unordered_map<ConCommandBase*, int> mFlagMap = {};
+	std::unordered_map<uint32_t, ConVar*> m_mCVarMap = {};
+	std::unordered_map<ConCommandBase*, int> m_mFlagMap = {};
+
+	bool m_bUnlocked = false;
 
 public:
-	void Initialize();
-	void Unload();
+	bool Unlock();
+	bool Restore();
 	ConVar* FindVar(const char* sCVar);
 };
 

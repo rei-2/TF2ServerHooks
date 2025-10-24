@@ -69,6 +69,22 @@ void CCommands::Initialize()
 			SDK::Output(std::format("Value of {} is {}", sCVar, pCVar->GetString()).c_str());
 		});
 
+	Register("unlockcvars", [](const std::deque<const char*>& vArgs)
+		{
+			if (U::ConVars.Unlock())
+				SDK::Output("Convar flags unlocked");
+			else
+				SDK::Output("Convar flags already unlocked");
+		});
+
+	Register("restorecvars", [](const std::deque<const char*>& vArgs)
+		{
+			if (U::ConVars.Restore())
+				SDK::Output("Convar flags restored");
+			else
+				SDK::Output("Convar flags not unlocked");
+		});
+
 	Register("platfloattime", [](const std::deque<const char*>& args)
 		{
 			if (args.size() != 1)
