@@ -71,7 +71,6 @@ public:
 	NETVAR(m_bHaveMinPlayersToEnableReady, bool, "CTFGameRulesProxy", "m_bHaveMinPlayersToEnableReady");
 	NETVAR(m_bBountyModeEnabled, bool, "CTFGameRulesProxy", "m_bBountyModeEnabled");
 	NETVAR(m_bCompetitiveMode, bool, "CTFGameRulesProxy", "m_bCompetitiveMode");
-	NETVAR(m_flGravityMultiplier, float, "CTFGameRulesProxy", "m_flGravityMultiplier");
 	NETVAR(m_nMatchGroupType, int, "CTFGameRulesProxy", "m_nMatchGroupType");
 	NETVAR(m_bMatchEnded, bool, "CTFGameRulesProxy", "m_bMatchEnded");
 	NETVAR(m_bHelltowerPlayersInHell, bool, "CTFGameRulesProxy", "m_bHelltowerPlayersInHell");
@@ -101,6 +100,8 @@ public:
 	NETVAR(m_nForceUpgrades, int, "CTFGameRulesProxy", "m_nForceUpgrades");
 	NETVAR(m_nForceEscortPushLogic, int, "CTFGameRulesProxy", "m_nForceEscortPushLogic");
 	NETVAR(m_bRopesHolidayLightsAllowed, bool, "CTFGameRulesProxy", "m_bRopesHolidayLightsAllowed");
+
+	NETVAR_OFF(m_flGravityMultiplier, float, "CTFGameRulesProxy", "m_bCompetitiveMode", 2);
 
 	VIRTUAL(GetViewVectors, CViewVectors*, CViewVectors*(*)(void*), 31, this);
 
