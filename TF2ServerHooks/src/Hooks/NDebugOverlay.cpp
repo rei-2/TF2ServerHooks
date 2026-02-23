@@ -22,8 +22,8 @@ MAKE_HOOK(NDebugOverlay_BoxAngles, S::NDebugOverlay_BoxAngles(), void,
 {
 	if (G::DrawHeadOnly)
 	{
-		static const auto dwDesired = S::CBaseAnimating_DrawServerHitboxes_BoxAngles_Call();
 		const auto dwRetAddr = uintptr_t(_ReturnAddress());
+		const auto dwDesired = S::CBaseAnimating_DrawServerHitboxes_BoxAngles_Call();
 
 		if (dwRetAddr == dwDesired && (r != 255 || g != 127 || b != 127))
 			return;

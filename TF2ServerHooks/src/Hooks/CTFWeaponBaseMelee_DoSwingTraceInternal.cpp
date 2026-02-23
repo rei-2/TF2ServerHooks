@@ -20,8 +20,8 @@ MAKE_HOOK(CTFWeaponBaseMelee_DoSwingTraceInternal, S::CTFWeaponBaseMelee_DoSwing
 	void* rcx, trace_t& trace, bool bCleave, CUtlVector<trace_t>* pTargetTraceVector)
 #endif
 {
-	static const auto dwDesired = S::CTFWeaponBaseMelee_Smack_DoSwingTraceInternal_Call();
 	const auto dwRetAddr = uintptr_t(_ReturnAddress());
+	const auto dwDesired = S::CTFWeaponBaseMelee_Smack_DoSwingTraceInternal_Call();
 
 	if (G::DebugVisuals && dwRetAddr == dwDesired)
 	{

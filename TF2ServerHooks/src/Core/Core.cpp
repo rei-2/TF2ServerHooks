@@ -13,33 +13,40 @@ static inline std::string GetProcessName(DWORD dwProcessID)
 	if (!hProcess)
 		return "";
 
-	char buffer[MAX_PATH];
-	if (!GetModuleBaseName(hProcess, nullptr, buffer, sizeof(buffer) / sizeof(char)))
+	if (char buffer[MAX_PATH]; GetModuleBaseName(hProcess, nullptr, buffer, sizeof(buffer) / sizeof(char)))
 	{
 		CloseHandle(hProcess);
-		return "";
+		return buffer;
 	}
 
 	CloseHandle(hProcess);
-	return buffer;
+	return "";
 }
 
 void CCore::AppendFailText(const char* sMessage)
 {
+	if (m_ssFailStream.str().empty())
+	{
+		m_ssFailStream << "Built @ " __DATE__ ", " __TIME__ ", " __CONFIGURATION__ "\n";
+		m_ssFailStream << std::format("Time @ {}, {}\n", SDK::GetDate(), SDK::GetTime());
+		m_ssFailStream << "\n";
+	}
+
 	m_ssFailStream << std::format("{}\n", sMessage);
 	OutputDebugStringA(std::format("{}\n", sMessage).c_str());
 }
 
 void CCore::LogFailText()
 {
-	m_ssFailStream << "\nBuilt @ " __DATE__ ", " __TIME__ ", " __CONFIGURATION__ "\n";
-	m_ssFailStream << "Ctrl + C to copy. \n";
 	try
 	{
 		std::ofstream file;
 		file.open(std::filesystem::current_path().string() + "\\fail_log.txt", std::ios_base::app);
 		file << m_ssFailStream.str() + "\n\n\n";
 		file.close();
+
+		m_ssFailStream << "\n";
+		m_ssFailStream << "Ctrl + C to copy. \n";
 		m_ssFailStream << "Logged to fail_log.txt. ";
 	}
 	catch (...) {}

@@ -8,7 +8,11 @@ MAKE_HOOK(CBaseAnimating_DrawServerHitboxes, S::CBaseAnimating_DrawServerHitboxe
 	void* rcx, float duration, bool monocolor)
 #endif
 {
+#if x86
+	auto pEntity = reinterpret_cast<CBaseAnimating*>(ecx);
+#else
 	auto pEntity = reinterpret_cast<CBaseAnimating*>(rcx);
+#endif
 	if (G::DebugTarget && G::DrawBoundingBox && pEntity->IsPlayer())
 	{
 		Vec3 origin = pEntity->m_vecOrigin();

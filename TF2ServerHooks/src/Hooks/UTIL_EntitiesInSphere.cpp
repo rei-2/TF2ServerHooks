@@ -35,8 +35,8 @@ MAKE_HOOK(UTIL_EntitiesInSphere, S::UTIL_EntitiesInSphere(), int,
 	const Vector& center, float radius, CFlaggedEntitiesEnum* pEnum)
 #endif
 {
-	static const auto dwDesired = S::CTFWeaponBase_DeflectProjectiles_EntitiesInSphere_Call();
 	const auto dwRetAddr = uintptr_t(_ReturnAddress());
+	const auto dwDesired = S::CTFWeaponBase_DeflectProjectiles_EntitiesInSphere_Call();
 
 	if (dwRetAddr != dwDesired || !G::DebugVisuals)
 		return CALL_ORIGINAL(center, radius, pEnum);

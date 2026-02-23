@@ -241,49 +241,41 @@ public:
 		return { m_angEyeAnglesX(), m_angEyeAnglesY(), 0.f };
 	}
 
-	inline bool InCond(const ETFCond cond)
+	inline bool InCond(const ETFCond eCond)
 	{
-		const int iCond = static_cast<int>(cond);
-		switch (iCond / 32)
+		switch (eCond / 32)
 		{
-		case 0:
-		{
-			const int bit = (1 << iCond);
-			if ((m_nPlayerCond() & bit) == bit || (_condition_bits() & bit) == bit)
-				return true;
-			break;
+		case 0: return m_nPlayerCond() & (1 << eCond) || _condition_bits() & (1 << eCond);
+		case 1: return m_nPlayerCondEx() & (1 << (eCond - 32));
+		case 2: return m_nPlayerCondEx2() & (1 << (eCond - 64));
+		case 3: return m_nPlayerCondEx3() & (1 << (eCond - 96));
+		case 4: return m_nPlayerCondEx4() & (1 << (eCond - 128));
 		}
-		case 1:
-		{
-			const int bit = 1 << (iCond - 32);
-			if ((m_nPlayerCondEx() & bit) == bit)
-				return true;
-			break;
-		}
-		case 2:
-		{
-			const int bit = 1 << (iCond - 64);
-			if ((m_nPlayerCondEx2() & bit) == bit)
-				return true;
-			break;
-		}
-		case 3:
-		{
-			const int bit = 1 << (iCond - 96);
-			if ((m_nPlayerCondEx3() & bit) == bit)
-				return true;
-			break;
-		}
-		case 4:
-		{
-			const int bit = 1 << (iCond - 128);
-			if ((m_nPlayerCondEx4() & bit) == bit)
-				return true;
-			break;
-		}
-		}
-
 		return false;
+	}
+
+	void AddCond(ETFCond eCond)
+	{
+		switch (eCond / 32)
+		{
+		case 0: m_nPlayerCond() |= (1 << eCond), _condition_bits() |= (1 << eCond); break;
+		case 1: m_nPlayerCondEx() |= (1 << (eCond - 32)); break;
+		case 2: m_nPlayerCondEx2() |= (1 << (eCond - 64)); break;
+		case 3: m_nPlayerCondEx3() |= (1 << (eCond - 96)); break;
+		case 4: m_nPlayerCondEx4() |= (1 << (eCond - 128)); break;
+		}
+	}
+
+	void RemoveCond(ETFCond eCond)
+	{
+		switch (eCond / 32)
+		{
+		case 0: m_nPlayerCond() &= ~(1 << eCond), _condition_bits() &= ~(1 << eCond); break;
+		case 1: m_nPlayerCondEx() &= ~(1 << (eCond - 32)); break;
+		case 2: m_nPlayerCondEx2() &= ~(1 << (eCond - 64)); break;
+		case 3: m_nPlayerCondEx3() &= ~(1 << (eCond - 96)); break;
+		case 4: m_nPlayerCondEx4() &= ~(1 << (eCond - 128)); break;
+		}
 	}
 
 	inline bool IsInvisible()
@@ -393,7 +385,7 @@ public:
 		return true;
 	}
 
-	inline float TeamFortress_CalculateMaxSpeed(bool bIgnoreSpecialAbility = false)
+	inline float CalculateMaxSpeed(bool bIgnoreSpecialAbility = false)
 	{
 #if x86
 		return reinterpret_cast<float(__fastcall*)(CTFPlayer*, bool)>(S::TeamFortress_CalculateMaxSpeed())(this, bIgnoreSpecialAbility);

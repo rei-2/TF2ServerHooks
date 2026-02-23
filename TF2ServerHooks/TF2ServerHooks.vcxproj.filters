@@ -72,7 +72,7 @@
     <ClCompile Include="src\Utils\ConVars\ConVars.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\CrashLog\CrashLog.cpp">
+    <ClCompile Include="src\Utils\ExceptionHandler\ExceptionHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\Hooks\Hooks.cpp">
@@ -145,6 +145,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Hooks\CBaseMultiplayerPlayer_EscortScoringThink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\CTFBomb_EventKilled.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\CBasePlayer_PlayerRunCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\CTFPlayer_TFPlayerThink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks\CTFGameRules_RadiusDamage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -668,7 +680,7 @@
     <ClInclude Include="src\Utils\ConVars\ConVars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\CrashLog\CrashLog.h">
+    <ClInclude Include="src\Utils\ExceptionHandler\ExceptionHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\Macros\Macros.h">

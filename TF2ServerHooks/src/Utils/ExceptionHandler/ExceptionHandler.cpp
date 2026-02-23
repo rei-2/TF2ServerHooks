@@ -1,4 +1,4 @@
-#include "CrashLog.h"
+#include "ExceptionHandler.h"
 
 #include "../../SDK/SDK.h"
 
@@ -10,6 +10,8 @@
 #include <format>
 #include <filesystem>
 #pragma comment(lib, "imagehlp.lib")
+
+#define STATUS_RUNTIME_ERROR ((DWORD)0xE06D7363)
 
 struct Frame_t
 {
@@ -28,29 +30,47 @@ static int s_iExceptions = 0;
 
 static inline std::deque<Frame_t> StackTrace(PCONTEXT pContext)
 {
+	std::deque<Frame_t> vTrace = {};
+
 	HANDLE hProcess = GetCurrentProcess();
 	HANDLE hThread = GetCurrentThread();
 
 	if (!SymInitialize(hProcess, nullptr, TRUE))
-		return {};
+		return vTrace;
 
 	SymSetOptions(SYMOPT_LOAD_LINES);
 
+#if x86
+	STACKFRAME tStackFrame = {};
+	tStackFrame.AddrPC.Offset = pContext->Eip;
+	tStackFrame.AddrFrame.Offset = pContext->Ebp;
+	tStackFrame.AddrStack.Offset = pContext->Esp;
+#else
 	STACKFRAME64 tStackFrame = {};
 	tStackFrame.AddrPC.Offset = pContext->Rip;
 	tStackFrame.AddrFrame.Offset = pContext->Rbp;
 	tStackFrame.AddrStack.Offset = pContext->Rsp;
+#endif
 	tStackFrame.AddrPC.Mode = AddrModeFlat;
 	tStackFrame.AddrFrame.Mode = AddrModeFlat;
 	tStackFrame.AddrStack.Mode = AddrModeFlat;
 
-	std::deque<Frame_t> vTrace = {};
-	while (StackWalk64(IMAGE_FILE_MACHINE_AMD64, hProcess, hThread, &tStackFrame, pContext, nullptr, SymFunctionTableAccess64, SymGetModuleBase64, nullptr))
-	{
-		Frame_t tFrame = {};
-		tFrame.m_uAddress = tStackFrame.AddrPC.Offset;
+	CONTEXT tContext = *pContext;
 
+#if x86
+	while (StackWalk(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &tStackFrame, &tContext, nullptr, SymFunctionTableAccess, SymGetModuleBase, nullptr))
+#else
+	while (StackWalk64(IMAGE_FILE_MACHINE_AMD64, hProcess, hThread, &tStackFrame, &tContext, nullptr, SymFunctionTableAccess64, SymGetModuleBase64, nullptr))
+#endif
+	{
+		vTrace.push_back({ .m_uAddress = tStackFrame.AddrPC.Offset });
+		Frame_t& tFrame = vTrace.back();
+
+#if x86
+		if (auto hBase = HINSTANCE(SymGetModuleBase(hProcess, tStackFrame.AddrPC.Offset)))
+#else
 		if (auto hBase = HINSTANCE(SymGetModuleBase64(hProcess, tStackFrame.AddrPC.Offset)))
+#endif
 		{
 			tFrame.m_uBase = uintptr_t(hBase);
 
@@ -63,9 +83,15 @@ static inline std::deque<Frame_t> StackTrace(PCONTEXT pContext)
 
 		{
 			DWORD dwOffset = 0;
+#if x86
+			IMAGEHLP_LINE line = {};
+			line.SizeOfStruct = sizeof(IMAGEHLP_LINE);
+			if (SymGetLineFromAddr(hProcess, tStackFrame.AddrPC.Offset, &dwOffset, &line))
+#else
 			IMAGEHLP_LINE64 line = {};
 			line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 			if (SymGetLineFromAddr64(hProcess, tStackFrame.AddrPC.Offset, &dwOffset, &line))
+#endif
 			{
 				tFrame.m_sFile = line.FileName;
 				tFrame.m_uLine = line.LineNumber;
@@ -76,19 +102,24 @@ static inline std::deque<Frame_t> StackTrace(PCONTEXT pContext)
 		}
 
 		{
-			uintptr_t dwOffset = 0;
+#if x86
+			DWORD dwOffset = 0;
+			char buf[sizeof(IMAGEHLP_SYMBOL) + 255];
+			auto symbol = PIMAGEHLP_SYMBOL(buf);
+			symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL) + 255;
+			symbol->MaxNameLength = 254;
+			if (SymGetSymFromAddr(hProcess, tStackFrame.AddrPC.Offset, &dwOffset, symbol))
+#else
+			DWORD64 dwOffset = 0;
 			char buf[sizeof(IMAGEHLP_SYMBOL64) + 255];
 			auto symbol = PIMAGEHLP_SYMBOL64(buf);
 			symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64) + 255;
 			symbol->MaxNameLength = 254;
 			if (SymGetSymFromAddr64(hProcess, tStackFrame.AddrPC.Offset, &dwOffset, symbol))
+#endif
 				tFrame.m_sName = symbol->Name;
 		}
-
-		vTrace.push_back(tFrame);
 	}
-	//if (!vTrace.empty())
-	//	vTrace.pop_front();
 
 	SymCleanup(hProcess);
 
@@ -97,13 +128,14 @@ static inline std::deque<Frame_t> StackTrace(PCONTEXT pContext)
 
 static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 {
-	const char* sError = nullptr;
+	const char* sError = "UNKNOWN";
 	switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
 	case STATUS_ACCESS_VIOLATION: sError = "ACCESS VIOLATION"; break;
 	case STATUS_STACK_OVERFLOW: sError = "STACK OVERFLOW"; break;
 	case STATUS_HEAP_CORRUPTION: sError = "HEAP CORRUPTION"; break;
-	default: return EXCEPTION_EXECUTE_HANDLER;
+	case STATUS_RUNTIME_ERROR: sError = "RUNTIME ERROR"; break;
+	case DBG_PRINTEXCEPTION_C: return EXCEPTION_EXECUTE_HANDLER;
 	}
 
 	if (s_mAddresses.contains(ExceptionInfo->ExceptionRecord->ExceptionAddress)
@@ -113,10 +145,23 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 
 	std::stringstream ssErrorStream;
 	ssErrorStream << std::format("Error: {} (0x{:X}) ({})\n", sError, ExceptionInfo->ExceptionRecord->ExceptionCode, ++s_iExceptions);
+	ssErrorStream << "Built @ " __DATE__ ", " __TIME__ ", " __CONFIGURATION__ "\n";
+	ssErrorStream << std::format("Time @ {}, {}\n", SDK::GetDate(), SDK::GetTime());
+
+	ssErrorStream << "\n";
 	if (U::Memory.GetOffsetFromBase(s_lpParam))
 		ssErrorStream << std::format("This: {}\n", U::Memory.GetModuleOffset(s_lpParam));
-	ssErrorStream << "\n";
-
+#if x86
+	ssErrorStream << std::format("RIP: {:#x}\n", ExceptionInfo->ContextRecord->Eip);
+	ssErrorStream << std::format("RAX: {:#x}\n", ExceptionInfo->ContextRecord->Eax);
+	ssErrorStream << std::format("RCX: {:#x}\n", ExceptionInfo->ContextRecord->Ecx);
+	ssErrorStream << std::format("RDX: {:#x}\n", ExceptionInfo->ContextRecord->Edx);
+	ssErrorStream << std::format("RBX: {:#x}\n", ExceptionInfo->ContextRecord->Ebx);
+	ssErrorStream << std::format("RSP: {:#x}\n", ExceptionInfo->ContextRecord->Esp);
+	ssErrorStream << std::format("RBP: {:#x}\n", ExceptionInfo->ContextRecord->Ebp);
+	ssErrorStream << std::format("RSI: {:#x}\n", ExceptionInfo->ContextRecord->Esi);
+	ssErrorStream << std::format("RDI: {:#x}\n", ExceptionInfo->ContextRecord->Edi);
+#else
 	ssErrorStream << std::format("RIP: {:#x}\n", ExceptionInfo->ContextRecord->Rip);
 	ssErrorStream << std::format("RAX: {:#x}\n", ExceptionInfo->ContextRecord->Rax);
 	ssErrorStream << std::format("RCX: {:#x}\n", ExceptionInfo->ContextRecord->Rcx);
@@ -125,44 +170,44 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 	ssErrorStream << std::format("RSP: {:#x}\n", ExceptionInfo->ContextRecord->Rsp);
 	ssErrorStream << std::format("RBP: {:#x}\n", ExceptionInfo->ContextRecord->Rbp);
 	ssErrorStream << std::format("RSI: {:#x}\n", ExceptionInfo->ContextRecord->Rsi);
-	ssErrorStream << std::format("RDI: {:#x}\n\n", ExceptionInfo->ContextRecord->Rdi);
-	
-	switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
+	ssErrorStream << std::format("RDI: {:#x}\n", ExceptionInfo->ContextRecord->Rdi);
+#endif
+
+	ssErrorStream << "\n";
+	if (auto vTrace = StackTrace(ExceptionInfo->ContextRecord);
+		!vTrace.empty())
 	{
-	case STATUS_ACCESS_VIOLATION:
-	//case STATUS_STACK_OVERFLOW:
-	//case STATUS_HEAP_CORRUPTION:
-		if (auto vTrace = StackTrace(ExceptionInfo->ContextRecord);
-			!vTrace.empty())
+		for (int i = 0; i < vTrace.size(); i++)
 		{
-			for (auto& tFrame : vTrace)
-			{
-				if (tFrame.m_uBase)
-					ssErrorStream << std::format("{}+{:#x}", tFrame.m_sModule, tFrame.m_uAddress - tFrame.m_uBase);
-				else
-					ssErrorStream << std::format("{:#x}", tFrame.m_uAddress);
-				if (!tFrame.m_sFile.empty())
-					ssErrorStream << std::format(" ({} L{})", tFrame.m_sFile, tFrame.m_uLine);
-				if (!tFrame.m_sName.empty())
-					ssErrorStream << std::format(" ({})", tFrame.m_sName);
-				ssErrorStream << "\n";
-			}
+			Frame_t& tFrame = vTrace[i];
+
+			ssErrorStream << std::format("{}: ", i + 1);
+			if (tFrame.m_uBase)
+				ssErrorStream << std::format("{}+{:#x}", tFrame.m_sModule, tFrame.m_uAddress - tFrame.m_uBase);
+			else
+				ssErrorStream << std::format("{:#x}", tFrame.m_uAddress);
+			if (!tFrame.m_sFile.empty())
+				ssErrorStream << std::format(" ({} L{})", tFrame.m_sFile, tFrame.m_uLine);
+			if (!tFrame.m_sName.empty())
+				ssErrorStream << std::format(" ({})", tFrame.m_sName);
 			ssErrorStream << "\n";
 		}
-		break;
-	default:
+	}
+	else
+	{
 		ssErrorStream << U::Memory.GetModuleOffset(ExceptionInfo->ExceptionRecord->ExceptionAddress);
-		ssErrorStream << "\n\n";
+		ssErrorStream << "\n";
 	}
 
-	ssErrorStream << "Built @ " __DATE__ ", " __TIME__ ", " __CONFIGURATION__ "\n";
-	ssErrorStream << "Ctrl + C to copy. \n";
 	try
 	{
 		std::ofstream file;
 		file.open(std::filesystem::current_path().string() + "\\crash_log.txt", std::ios_base::app);
 		file << ssErrorStream.str() + "\n\n\n";
 		file.close();
+
+		ssErrorStream << "\n";
+		ssErrorStream << "Ctrl + C to copy. \n";
 		ssErrorStream << "Logged to crash_log.txt. ";
 	}
 	catch (...) {}
@@ -170,20 +215,20 @@ static LONG APIENTRY ExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 	switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
 	case STATUS_ACCESS_VIOLATION:
-	//case STATUS_STACK_OVERFLOW:
-	//case STATUS_HEAP_CORRUPTION:
+	case STATUS_STACK_OVERFLOW:
+	case STATUS_HEAP_CORRUPTION:
 		SDK::Output("Unhandled exception", ssErrorStream.str().c_str(), {}, OUTPUT_DEBUG, MB_OK | MB_ICONERROR);
 	}
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
-void CCrashLog::Initialize(LPVOID lpParam)
+void CExceptionHandler::Initialize(LPVOID lpParam)
 {
 	s_pHandle = AddVectoredExceptionHandler(1, ExceptionFilter);
 	s_lpParam = lpParam;
 }
-void CCrashLog::Unload()
+void CExceptionHandler::Unload()
 {
 	RemoveVectoredExceptionHandler(s_pHandle);
 }

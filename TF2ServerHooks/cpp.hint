@@ -49,6 +49,16 @@ namespace MAKE_INTERFACE_SCOPE \
 	static int nOffset = U::NetVars.GetNetVar(table, name) + offset; \
 	return *reinterpret_cast<type*>(uintptr_t(this) + nOffset); \
 }
+#define NETVAR_EMBED(_name, type, table, name) inline type _name() \
+{ \
+	static int nOffset = U::NetVars.GetNetVar(table, name); \
+	return reinterpret_cast<type>(uintptr_t(this) + nOffset); \
+}
+#define NETVAR_OFF_EMBED(_name, type, table, name, offset) inline type _name() \
+{ \
+	static int nOffset = U::NetVars.GetNetVar(table, name) + offset; \
+	return reinterpret_cast<type>(uintptr_t(this) + nOffset); \
+}
 #define NETVAR_ARRAY(_name, type, table, size, name) inline type& _name(int iIndex) \
 { \
 	static int nOffset = U::NetVars.GetNetVar(table, name); \
@@ -63,17 +73,18 @@ namespace MAKE_INTERFACE_SCOPE \
 { \
 	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
 }
-
+#define OFFSET_EMBED(name, type, offset) inline type name() \
+{ \
+	return reinterpret_cast<type>(uintptr_t(this) + offset); \
+}
 #define CONDGET(name, conditions, cond) inline bool name() \
 { \
 	return conditions & cond; \
 }
-
 #define VIRTUAL(name, type, fn, index, base) inline type name() \
 { \
 	return reinterpret_cast<fn>(U::Memory.GetVirtual(base, index))(base); \
 }
-
 #define VIRTUAL_ARGS(name, type, fn, index, base, args, ...) inline type name##args \
 { \
 	return reinterpret_cast<fn>(U::Memory.GetVirtual(base, index))(##__VA_ARGS__); \

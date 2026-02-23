@@ -195,14 +195,18 @@
     <ClCompile Include="src\Hooks\CBaseAnimating_DrawServerHitboxes.cpp" />
     <ClCompile Include="src\Hooks\CBaseMultiplayerPlayer_EscortScoringThink.cpp" />
     <ClCompile Include="src\Hooks\CBasePlayer_ProcessUsercmds.cpp" />
+    <ClCompile Include="src\Hooks\CTFBomb_EventKilled.cpp" />
     <ClCompile Include="src\Hooks\CLagCompensationManager_StartLagCompensation.cpp" />
     <ClCompile Include="src\Hooks\CPlayerMove_RunCommand.cpp" />
+    <ClCompile Include="src\Hooks\CTFGameRules_RadiusDamage.cpp" />
     <ClCompile Include="src\Hooks\CTFPlayer_FireBullet.cpp" />
+    <ClCompile Include="src\Hooks\CTFPlayer_TFPlayerThink.cpp" />
     <ClCompile Include="src\Hooks\CTFProjectile_Arrow_ArrowTouch.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBaseGun_FireProjectile.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBaseMelee_DoSwingTraceInternal.cpp" />
     <ClCompile Include="src\Hooks\CTFWeaponBase_CalcIsAttackCritical.cpp" />
     <ClCompile Include="src\Hooks\DataTable_Warning.cpp" />
+    <ClCompile Include="src\Hooks\CBasePlayer_PlayerRunCommand.cpp" />
     <ClCompile Include="src\Hooks\FX_FireBullets.cpp" />
     <ClCompile Include="src\Hooks\Cmd_ExecuteCommand.cpp" />
     <ClCompile Include="src\Hooks\NDebugOverlay.cpp" />
@@ -220,7 +224,7 @@
     <ClCompile Include="src\SDK\Helpers\TraceFilters\TraceFilters.cpp" />
     <ClCompile Include="src\SDK\SDK.cpp" />
     <ClCompile Include="src\Utils\ConVars\ConVars.cpp" />
-    <ClCompile Include="src\Utils\CrashLog\CrashLog.cpp" />
+    <ClCompile Include="src\Utils\ExceptionHandler\ExceptionHandler.cpp" />
     <ClCompile Include="src\Utils\Hooks\Hooks.cpp" />
     <ClCompile Include="src\Utils\Interfaces\Interfaces.cpp" />
     <ClCompile Include="src\Utils\Memory\Memory.cpp" />
@@ -410,7 +414,7 @@
     <ClInclude Include="src\SDK\Helpers\TraceFilters\TraceFilters.h" />
     <ClInclude Include="src\SDK\SDK.h" />
     <ClInclude Include="src\Utils\ConVars\ConVars.h" />
-    <ClInclude Include="src\Utils\CrashLog\CrashLog.h" />
+    <ClInclude Include="src\Utils\ExceptionHandler\ExceptionHandler.h" />
     <ClInclude Include="src\Utils\Macros\Macros.h" />
     <ClInclude Include="src\Utils\Hash\FNV1A.h" />
     <ClInclude Include="src\Utils\Hooks\Hooks.h" />

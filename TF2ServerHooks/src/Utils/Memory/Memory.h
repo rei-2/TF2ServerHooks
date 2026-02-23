@@ -46,7 +46,7 @@ public:
 	template <typename T>
 	inline T GetModuleExport(const char* szModule, const char* szExport)
 	{
-		if (auto hModule = GetModuleHandle(szModule))
+		if (const auto hModule = GetModuleHandle(szModule))
 			return reinterpret_cast<T>(GetProcAddress(hModule, szExport));
 		return reinterpret_cast<T>(nullptr);
 	}
@@ -57,6 +57,11 @@ ADD_FEATURE_CUSTOM(CMemory, Memory, U);
 #define OFFSET(name, type, offset) inline type& name() \
 { \
 	return *reinterpret_cast<type*>(uintptr_t(this) + offset); \
+}
+
+#define OFFSET_EMBED(name, type, offset) inline type name() \
+{ \
+	return reinterpret_cast<type>(uintptr_t(this) + offset); \
 }
 
 #define CONDGET(name, conditions, cond) inline bool name() \

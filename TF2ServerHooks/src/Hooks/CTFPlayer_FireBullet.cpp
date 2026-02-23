@@ -13,9 +13,9 @@ MAKE_SIGNATURE(UTIL_PlayerBulletTrace, "server.dll", "48 89 5C 24 ? 48 89 74 24 
 #endif
 
 #if x86
-MAKE_SIGNATURE(UTIL_TraceLine, "server.dll", "53 8B DC 83 EC ? 83 E4 ? 83 C4 ? 55 8B 6B ? 89 6C 24 ? 8B EC 83 EC ? 8B 43 ? 8B 4B ? 56 C6 45", 0x0);
+MAKE_SIGNATURE(UTIL_TraceLine_Filter, "server.dll", "53 8B DC 83 EC ? 83 E4 ? 83 C4 ? 55 8B 6B ? 89 6C 24 ? 8B EC 83 EC ? 8B 43 ? 8B 4B ? 56 C6 45", 0x0);
 #else
-MAKE_SIGNATURE(UTIL_TraceLine, "server.dll", "48 8B C4 53 48 81 EC ? ? ? ? F3 0F 10 42 ? F3 0F 10 19", 0x0);
+MAKE_SIGNATURE(UTIL_TraceLine_Filter, "server.dll", "48 8B C4 53 48 81 EC ? ? ? ? F3 0F 10 42 ? F3 0F 10 19", 0x0);
 #endif
 
 #if x86
@@ -30,8 +30,13 @@ MAKE_SIGNATURE(UTIL_ClipTraceToPlayers, "server.dll", "53 8B DC 83 EC ? 83 E4 ? 
 MAKE_SIGNATURE(UTIL_ClipTraceToPlayers, "server.dll", "48 8B C4 48 89 70 ? 48 89 78 ? 55 41 54 41 55 41 56 41 57 48 8D 68", 0x0);
 #endif
 
+#if x86
+MAKE_SIGNATURE(CTFRadiusDamageInfo_ApplyToEntity_TraceLine_Call, "server.dll", "8B 4D ? 83 C4 ? F3 0F 10 45", 0x0);
+#else
+MAKE_SIGNATURE(CTFRadiusDamageInfo_ApplyToEntity_TraceLine_Call, "server.dll", "48 8B 4D ? F3 0F 10 45", 0x0);
+#endif
+
 //static Vec3 vStart = {}, vEnd = {};
-static CTFPlayer* s_pPlayer = nullptr;
 
 #if x86
 MAKE_HOOK(CTFPlayer_FireBullet, S::CTFPlayer_FireBullet(), void, __fastcall,
@@ -42,9 +47,9 @@ MAKE_HOOK(CTFPlayer_FireBullet, S::CTFPlayer_FireBullet(), void,
 #endif
 {
 #if x86
-	s_pPlayer = reinterpret_cast<CTFPlayer*>(ecx);
+	G::DebugTarget = reinterpret_cast<CBasePlayer*>(ecx);
 #else
-	s_pPlayer = reinterpret_cast<CTFPlayer*>(rcx);
+	G::DebugTarget = reinterpret_cast<CBasePlayer*>(rcx);
 #endif
 
 	/*
@@ -52,9 +57,9 @@ MAKE_HOOK(CTFPlayer_FireBullet, S::CTFPlayer_FireBullet(), void,
 	Vec3 vEnd = vStart + info.m_vecDirShooting * info.m_flDistance;
 	if (G::DebugVisuals)
 #if x86
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 #else
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vStart.x, vStart.y, vStart.z - 1, vEnd.x, vEnd.y, vEnd.z - 1, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 #endif
 	*/
 
@@ -76,24 +81,30 @@ MAKE_HOOK(UTIL_PlayerBulletTrace, S::UTIL_PlayerBulletTrace(), void,
 	CALL_ORIGINAL(vecStart, vecEnd, vecDir, mask, pFilter, trace);
 
 	if (G::DebugVisuals)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecStart.x, vecStart.y, vecStart.z, trace->endpos.x, trace->endpos.y, trace->endpos.z, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), s_pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecStart.x, vecStart.y, vecStart.z, trace->endpos.x, trace->endpos.y, trace->endpos.z, 0, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 }
 
 #if x86
-MAKE_HOOK(UTIL_TraceLine, S::UTIL_TraceLine(), void, __cdecl,
+MAKE_HOOK(UTIL_TraceLine_Filter, S::UTIL_TraceLine_Filter(), void, __cdecl,
 	const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, ITraceFilter* pFilter, trace_t* ptr)
 #else
-MAKE_HOOK(UTIL_TraceLine, S::UTIL_TraceLine(), void,
+MAKE_HOOK(UTIL_TraceLine_Filter, S::UTIL_TraceLine_Filter(), void,
 	const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, ITraceFilter* pFilter, trace_t* ptr)
 #endif
 {
-	static const auto dwDesired = S::UTIL_PlayerBulletTrace_TraceLine_Call();
 	const auto dwRetAddr = uintptr_t(_ReturnAddress());
+	const auto dwDesired1 = S::UTIL_PlayerBulletTrace_TraceLine_Call();
+	const auto dwDesired2 = S::CTFRadiusDamageInfo_ApplyToEntity_TraceLine_Call();
 
 	CALL_ORIGINAL(vecAbsStart, vecAbsEnd, mask, pFilter, ptr);
 
-	if (G::DebugVisuals && dwDesired == dwRetAddr)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z + 1, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z + 1, 255, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), s_pPlayer);
+	if (G::DebugVisuals)
+	{
+		if (dwRetAddr == dwDesired1)
+			SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", ptr->startpos.x, ptr->startpos.y, ptr->startpos.z + 1, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z + 1, 255, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+		else if (dwRetAddr == dwDesired2)
+			SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", ptr->startpos.x, ptr->startpos.y, ptr->startpos.z, ptr->endpos.x, ptr->endpos.y, ptr->endpos.z, 0, 0, 0, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
+	}
 }
 
 #if x86
@@ -107,5 +118,5 @@ MAKE_HOOK(UTIL_ClipTraceToPlayers, S::UTIL_ClipTraceToPlayers(), void,
 	CALL_ORIGINAL(vecAbsStart, vecAbsEnd, mask, filter, tr);
 
 	if (G::DebugVisuals)
-		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z - 1, tr->endpos.x, tr->endpos.y, tr->endpos.z - 1, 255, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), s_pPlayer);
+		SDK::OutputClient("Line", std::format("{} {} {} {} {} {} {} {} {} {} {}", vecAbsStart.x, vecAbsStart.y, vecAbsStart.z - 1, tr->endpos.x, tr->endpos.y, tr->endpos.z - 1, 255, 0, 255, 0, G::DrawDuration ? G::DrawDuration : 4).c_str(), G::DebugTarget);
 }

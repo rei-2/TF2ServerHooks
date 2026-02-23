@@ -52,6 +52,56 @@ void SDK::OutputClient(const char* cFunction, const char* cLog,
 #endif
 }
 
+void SDK::SetClipboard(const std::string& sString)
+{
+	if (OpenClipboard(nullptr))
+	{
+		EmptyClipboard();
+
+		if (HGLOBAL hMemory = GlobalAlloc(GMEM_DDESHARE, sString.length() + 1))
+		{
+			if (void* pData = GlobalLock(hMemory))
+			{
+				memset(pData, 0, sString.length() + 1);
+				memcpy(pData, sString.c_str(), sString.length());
+				GlobalUnlock(hMemory);
+				SetClipboardData(CF_TEXT, hMemory);
+			}
+		}
+
+		CloseClipboard();
+	}
+}
+
+std::string SDK::GetClipboard()
+{
+	std::string sString = "";
+	if (OpenClipboard(nullptr))
+	{
+		if (void* pData = GetClipboardData(CF_TEXT))
+			sString = (char*)(pData);
+
+		CloseClipboard();
+	}
+	return sString;
+}
+
+std::string SDK::GetDate()
+{
+	time_t tTime = time(nullptr);
+	tm timeinfo; localtime_s(&timeinfo, &tTime);
+	char buffer[16]; strftime(buffer, sizeof(buffer), "%b %e %Y", &timeinfo);
+	return buffer;
+}
+
+std::string SDK::GetTime()
+{
+	time_t tTime = time(nullptr);
+	tm timeinfo; localtime_s(&timeinfo, &tTime);
+	char buffer[16]; strftime(buffer, sizeof(buffer), "%T", &timeinfo);
+	return buffer;
+}
+
 std::wstring SDK::ConvertUtf8ToWide(const std::string& source)
 {
 	int size = MultiByteToWideChar(CP_UTF8, 0, source.data(), -1, nullptr, 0);
@@ -135,32 +185,32 @@ int SDK::HandleToIDX(unsigned int pHandle)
 	return pHandle & 0xFFF;
 }
 
-void SDK::Trace(const Vec3& vecStart, const Vec3& vecEnd, unsigned int nMask, ITraceFilter* pFilter, CGameTrace* pTrace)
+void SDK::Trace(const Vec3& vStart, const Vec3& vEnd, unsigned int nMask, ITraceFilter* pFilter, CGameTrace* pTrace)
 {
 	Ray_t ray;
-	ray.Init(vecStart, vecEnd);
+	ray.Init(vStart, vEnd);
 	I::EngineTrace->TraceRay(ray, nMask, pFilter, pTrace);
 
 #ifdef DEBUG_TRACES
 	if (Vars::Debug::VisualizeTraces.Value)
-		G::LineStorage.push_back({ { vecStart, Vars::Debug::VisualizeTraceHits.Value ? pTrace->endpos : vecEnd }, I::GlobalVars->curtime + 0.015f, {}, bool(GetAsyncKeyState(VK_MENU) & 0x8000) });
+		G::LineStorage.emplace_back(std::pair<Vec3, Vec3>(vStart, Vars::Debug::VisualizeTraceHits.Value ? pTrace->endpos : vEnd), I::GlobalVars->curtime + 0.015f, Color_t(), bool(GetAsyncKeyState(VK_MENU) & 0x8000));
 #endif
 }
 
-void SDK::TraceHull(const Vec3& vecStart, const Vec3& vecEnd, const Vec3& vecHullMin, const Vec3& vecHullMax, unsigned int nMask, ITraceFilter* pFilter, CGameTrace* pTrace)
+void SDK::TraceHull(const Vec3& vStart, const Vec3& vEnd, const Vec3& vHullMin, const Vec3& vHullMax, unsigned int nMask, ITraceFilter* pFilter, CGameTrace* pTrace)
 {
 	Ray_t ray;
-	ray.Init(vecStart, vecEnd, vecHullMin, vecHullMax);
+	ray.Init(vStart, vEnd, vHullMin, vHullMax);
 	I::EngineTrace->TraceRay(ray, nMask, pFilter, pTrace);
 
 #ifdef DEBUG_TRACES
 	if (Vars::Debug::VisualizeTraces.Value)
 	{
-		G::LineStorage.push_back({ { vecStart, Vars::Debug::VisualizeTraceHits.Value ? pTrace->endpos : vecEnd }, I::GlobalVars->curtime + 0.015f, {}, bool(GetAsyncKeyState(VK_MENU) & 0x8000) });
-		if (!(vecHullMax - vecHullMin).IsZero())
+		G::LineStorage.emplace_back(std::pair<Vec3, Vec3>(vStart, Vars::Debug::VisualizeTraceHits.Value ? pTrace->endpos : vEnd), I::GlobalVars->curtime + 0.015f, Color_t(), bool(GetAsyncKeyState(VK_MENU) & 0x8000));
+		if (!(vHullMax - vHullMin).IsZero())
 		{
-			G::BoxStorage.push_back({ vecStart, vecHullMin, vecHullMax, {}, I::GlobalVars->curtime + 0.015f, {}, { 0, 0, 0, 0 }, bool(GetAsyncKeyState(VK_MENU) & 0x8000) });
-			G::BoxStorage.push_back({ Vars::Debug::VisualizeTraceHits.Value ? pTrace->endpos : vecEnd, vecHullMin, vecHullMax, {}, I::GlobalVars->curtime + 0.015f, {}, { 0, 0, 0, 0 }, bool(GetAsyncKeyState(VK_MENU) & 0x8000) });
+			G::BoxStorage.emplace_back(vStart, vHullMin, vHullMax, Vec3(), I::GlobalVars->curtime + 0.015f, Color_t(), Color_t(0, 0, 0, 0), bool(GetAsyncKeyState(VK_MENU) & 0x8000));
+			G::BoxStorage.emplace_back(Vars::Debug::VisualizeTraceHits.Value ? pTrace->endpos : vEnd, vHullMin, vHullMax, Vec3(), I::GlobalVars->curtime + 0.015f, Color_t(), Color_t(0, 0, 0, 0), bool(GetAsyncKeyState(VK_MENU) & 0x8000));
 		}
 	}
 #endif
@@ -192,4 +242,38 @@ bool SDK::VisPosWorld(CBaseEntity* pSkip, const CBaseEntity* pEntity, const Vec3
 	if (trace.DidHit())
 		return trace.m_pEnt && trace.m_pEnt == pEntity;
 	return true;
+}
+
+void SDK::FixMovement(CUserCmd* pCmd, const Vec3& vCurAngle, const Vec3& vTargetAngle)
+{
+	bool bCurOOB = fabsf(Math::NormalizeAngle(vCurAngle.x)) > 90.f;
+	bool bTargetOOB = fabsf(Math::NormalizeAngle(vTargetAngle.x)) > 90.f;
+
+	Vec3 vMove = { pCmd->forwardmove, pCmd->sidemove * (bCurOOB ? -1 : 1), pCmd->upmove };
+	float flSpeed = vMove.Length2D();
+	Vec3 vMoveAng = Math::VectorAngles(vMove);
+
+	float flCurYaw = vCurAngle.y + (bCurOOB ? 180.f : 0.f);
+	float flTargetYaw = vTargetAngle.y + (bTargetOOB ? 180.f : 0.f);
+	float flYaw = DEG2RAD(flTargetYaw - flCurYaw + vMoveAng.y);
+
+	pCmd->forwardmove = cos(flYaw) * flSpeed;
+	pCmd->sidemove = sin(flYaw) * flSpeed * (bTargetOOB ? -1 : 1);
+}
+
+void SDK::FixMovement(CUserCmd* pCmd, const Vec3& vTargetAngle)
+{
+	FixMovement(pCmd, pCmd->viewangles, vTargetAngle);
+}
+
+float SDK::MaxSpeed(CTFPlayer* pPlayer, bool bIncludeCrouch, bool bIgnoreSpecialAbility)
+{
+	float flSpeed = pPlayer->CalculateMaxSpeed(bIgnoreSpecialAbility);
+
+	if (pPlayer->InCond(TF_COND_SPEED_BOOST) || pPlayer->InCond(TF_COND_HALLOWEEN_SPEED_BOOST))
+		flSpeed *= 1.35f;
+	if (bIncludeCrouch && pPlayer->IsDucking() && pPlayer->IsOnGround())
+		flSpeed /= 3;
+
+	return flSpeed;
 }

@@ -68,6 +68,11 @@ public:
 		return x != v.x || y != v.y;
 	}
 
+	explicit operator bool() const
+	{
+		return x || y;
+	}
+
 	inline Vec2& operator+=(const Vec2& v)
 	{
 		x += v.x; y += v.y; return *this;
@@ -270,10 +275,15 @@ public:
 		return x * v.x + y * v.y;
 	}
 
-	inline bool IsZero(void) const
+	inline float DotNormalized(const Vec2& v) const
 	{
-		return fabsf(x) < 0.001f &&
-			   fabsf(y) < 0.001f;
+		return (x * v.x + y * v.y) / (Length() * v.Length());
+	}
+
+	inline bool IsZero(float flEpsilon = 0.001f) const
+	{
+		return fabsf(x) < flEpsilon &&
+			   fabsf(y) < flEpsilon;
 	}
 };
 using Vector2D = Vec2;
@@ -337,6 +347,11 @@ public:
 	inline bool operator!=(const Vec3& v) const
 	{
 		return x != v.x || y != v.y || z != v.z;
+	}
+
+	explicit operator bool() const
+	{
+		return x || y || z;
 	}
 
 	inline Vec3& operator+=(const Vec3& v)
@@ -424,7 +439,7 @@ public:
 		x = X; y = Y; z = Z;
 	}
 
-	inline Vec3 To2D()
+	inline Vec3 To2D() const
 	{
 		return { x, y };
 	}
@@ -607,16 +622,21 @@ public:
 		return x * v.x + y * v.y + z * v.z;
 	}
 
+	inline float DotNormalized(const Vec3& v) const
+	{
+		return (x * v.x + y * v.y + z * v.z) / (Length() * v.Length());
+	}
+
 	inline Vec3 Cross(const Vec3& v) const
 	{
 		return Vec3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
 	}
 
-	inline bool IsZero(void) const
+	inline bool IsZero(float flEpsilon = 0.001f) const
 	{
-		return fabsf(x) < 0.001f &&
-			   fabsf(y) < 0.001f &&
-			   fabsf(z) < 0.001f;
+		return fabsf(x) < flEpsilon &&
+			   fabsf(y) < flEpsilon &&
+			   fabsf(z) < flEpsilon;
 	}
 
 	inline Vec3 ToAngle() const noexcept

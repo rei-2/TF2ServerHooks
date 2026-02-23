@@ -6,7 +6,11 @@
 
 class CBasePlayer;
 
+#if x86
 MAKE_SIGNATURE(RandomSeed, "server.dll", "0F 45 05 ? ? ? ? 0F B6 C0", 0x0);
+#else
+MAKE_SIGNATURE(RandomSeed, "server.dll", "0F 45 05 ? ? ? ? 0F B6 C0", 0x0);
+#endif
 
 namespace G
 {
